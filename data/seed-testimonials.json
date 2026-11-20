@@ -1,0 +1,50 @@
+[
+  {
+    "id": "testi-1",
+    "nama": "Budi Santoso",
+    "rating": 5,
+    "komentar": "Pelayanan di HENGKI HONDA JPA sangat ramah dan proses kredit FIF cepat tanpa ribet! Sehari langsung acc dan motor diantar ke rumah."
+  },
+  {
+    "id": "testi-2",
+    "nama": "Siti Nurhaliza",
+    "rating": 5,
+    "komentar": "Beli Honda Scoopy baru disini dapat promo DP termurah. Salesnya sangat membantu dan komunikatif via WhatsApp."
+  },
+  {
+    "id": "testi-3",
+    "nama": "Ahmad Fauzi",
+    "rating": 5,
+    "komentar": "Alhamdulillah ambil Honda PCX 160 proses lewat leasing OTO sangat cepat dan transparan. Unit datang tepat waktu dan surat-surat aman."
+  },
+  {
+    "id": "testi-4",
+    "nama": "Dewi Sartika",
+    "rating": 5,
+    "komentar": "Rekomendasi dealer Honda terbaik! Pelayanan aftersales juga memuaskan. Sukses selalu HENGKI HONDA JPA!"
+  },
+  {
+    "id": "testi-5",
+    "nama": "Rian Hidayat",
+    "rating": 5,
+    "komentar": "DP ringan angsuran pas di kantong. Terima kasih mas sales sudah dibantu prosesnya sampai tuntas."
+  },
+  {
+    "id": "testi-6",
+    "nama": "Endang Supriatna",
+    "rating": 5,
+    "komentar": "Mantap pisan pelayananna, dealer resmi terpercaya. Rekomen buat warga Palabuhanratu, Jampang dan sekitarnya."
+  },
+  {
+    "id": "testi-7",
+    "nama": "Fitri Handayani",
+    "rating": 5,
+    "komentar": "Proses mudah, syarat cuma KTP dan KK, langsung diproses cepat. Motor BeAT-nya mulus pisan."
+  },
+  {
+    "id": "testi-8",
+    "nama": "Deni Setiawan",
+    "rating": 5,
+    "komentar": "Puas sekali ambil CRF 150 disini. Diskon menarik dan bonus helm jaket lengkap!"
+  }
+]

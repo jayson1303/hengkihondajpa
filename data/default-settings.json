@@ -1,0 +1,66 @@
+{
+  "hero": {
+    "backgroundUrl": "assets/img/hero/hero-bg.jpg",
+    "promoImageUrl": "assets/img/hero/promo-banner.jpg",
+    "promoActive": true,
+    "title": "Dealer Resmi Sepeda Motor Honda",
+    "subtitle": "HENGKI HONDA JPA",
+    "tagline": "Dapatkan Promo DP Ringan, Angsuran Terjangkau FIF & OTO, Diskon Spesial, dan Proses Cepat Mudah Terpercaya!",
+    "ctaText": "Lihat Pilihan Motor"
+  },
+  "about": {
+    "title": "Dealer Resmi Honda HENGKI HONDA JPA",
+    "deskripsi": "HENGKI HONDA JPA hadir untuk mewujudkan impian Anda memiliki sepeda motor Honda idaman dengan proses yang mudah, transparan, cepat, dan penuh kehangatan. Kami melayani pembelian unit secara Cash maupun Kredit dengan pilihan leasing resmi FIFASTRA (FIF) dan OTO Multiartha dengan promo DP paling kompetitif di wilayah Palabuhanratu, Jampang, dan sekitarnya.",
+    "foto": "assets/img/about/about.jpg",
+    "keunggulan": [
+      {
+        "icon": "fa-award",
+        "title": "100% Dealer Resmi Honda",
+        "desc": "Unit motor baru asli Astra Honda Motor bergaransi resmi pabrik."
+      },
+      {
+        "icon": "fa-calculator",
+        "title": "Pilihan Leasing OTO & FIF",
+        "desc": "Bebas pilih skema angsuran fleksibel sesuai kebutuhan finansial Anda."
+      },
+      {
+        "icon": "fa-percent",
+        "title": "Promo DP Paling Murah",
+        "desc": "Tersedia potongan tenor dan diskon uang muka spesial tiap bulan."
+      },
+      {
+        "icon": "fa-truck-fast",
+        "title": "Gratis Antar ke Rumah",
+        "desc": "Motor diantar aman langsung ke rumah konsumen dengan selamat."
+      }
+    ]
+  },
+  "pelayanan": [
+    {
+      "id": "pelayanan-1",
+      "title": "Pelayanan Akurat & Cepat",
+      "desc": "Proses administrasi cepat, simulasi transparan, dan pengantaran unit tepat waktu.",
+      "foto": "assets/img/pelayanan/akurat-cepat.jpg"
+    },
+    {
+      "id": "pelayanan-2",
+      "title": "Event Service Honda",
+      "desc": "Layanan servis berkala, promo event servis, dan teknisi ahli bersertifikasi Astra Honda.",
+      "foto": "assets/img/pelayanan/event-service.jpg"
+    }
+  ],
+  "contact": {
+    "alamat": "Jaya Perkasa Abadi. PT - Dealer Resmi Motor Honda",
+    "jamOperasional": "Senin - Sabtu: 08.00 - 17.00 WIB | Minggu: 09.00 - 15.00 WIB",
+    "whatsappNumber": "081313133505",
+    "whatsappLink": "https://wa.me/6281313133505",
+    "instagram": "https://www.instagram.com/hengki1978/",
+    "tiktok": "https://www.tiktok.com/@hengki.honda.jpa",
+    "facebook": "",
+    "googleMapsEmbed": "https://maps.google.com/maps?q=-6.1096361,106.8885471+(Jaya+Perkasa+Abadi.+PT)&t=&z=16&ie=UTF8&iwloc=B&output=embed",
+    "googleMapsUrl": "https://maps.app.goo.gl/hSzi68kKWfmkN2wh6"
+  },
+  "waTemplate": {
+    "template": "Halo Hengki Honda JPA, saya tertarik dengan:\nMotor: {namaMotor}\nWarna: {warna}\nHarga OTR Cash: {hargaOtr}\nPilihan Leasing: {leasing}\nSimulasi Kredit: DP {dp} - Tenor {tenor} bulan - Cicilan {cicilan}/bulan\nMohon info lebih lanjut. Terima kasih."
+  }
+}

@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin | HengkiHondaJPA</title>
+  
+  <link rel="icon" type="image/png" href="../assets/img/logo/logo-transparent.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="css/admin.css">
+
+  <!-- SheetJS for Browser-Side Excel Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/img/logo/logo-transparent.png" alt="Logo" class="sidebar-logo" onerror="this.src='../assets/img/logo/logo.png'">
+        <div>
+          <div class="sidebar-brand-name">HengkiHondaJPA</div>
+          <div class="sidebar-brand-sub">Admin Panel</div>
+        </div>
+      </div>
+
+      <ul class="sidebar-nav">
+        <li>
+          <a class="sidebar-link active" data-tab="tab-dashboard">
+            <i class="fa-solid fa-gauge-high"></i> <span>Ringkasan</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-link" data-tab="tab-products">
+            <i class="fa-solid fa-motorcycle"></i> <span>Kelola Motor & Kredit</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-link" data-tab="tab-hero">
+            <i class="fa-solid fa-image"></i> <span>Hero & Promo Banner</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-link" data-tab="tab-about">
+            <i class="fa-solid fa-store"></i> <span>Tentang Kami</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-link" data-tab="tab-testimonials">
+            <i class="fa-solid fa-comments"></i> <span>Ulasan Konsumen</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-link" data-tab="tab-contact">
+            <i class="fa-solid fa-address-book"></i> <span>Kontak & Sosial Media</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-link" data-tab="tab-template">
+            <i class="fa-brands fa-whatsapp"></i> <span>Template WhatsApp</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="user-badge">
+          <i class="fa-solid fa-circle-user"></i>
+          <div>
+            <div style="font-weight: 700; color: #FFF;">Logged in as:</div>
+            <div id="admin-user-email" style="font-size: 0.75rem; color: #94A3B8;">admin@hengkihonda.com</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Topbar -->
+      <header class="admin-topbar">
+        <div class="topbar-left">
+          <button class="sidebar-toggle-btn" id="sidebar-toggle" aria-label="Toggle Sidebar">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <h2 class="topbar-title" id="page-title">Dashboard Administrator</h2>
+        </div>
+
+        <div class="topbar-right">
+          <button type="button" class="btn-firebase-badge" id="btn-firebase-badge" title="Klik untuk cek status / ubah konfigurasi Firebase" style="display: inline-flex; align-items: center; gap: 7px; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: 1px solid #E2E8F0; background: #F8FAFC; color: #475569; transition: all 0.2s ease;">
+            <i class="fa-solid fa-cloud" id="fb-status-icon" style="color: #64748B;"></i>
+            <span id="fb-status-text">Firebase: hengkihonda-d1f23</span>
+          </button>
+          <a href="../index.html" target="_blank" rel="noopener noreferrer" class="btn-view-site">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Lihat Website
+          </a>
+          <button type="button" class="btn-logout" id="btn-logout">
+            <i class="fa-solid fa-right-from-bracket"></i> Keluar
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <div class="admin-content">
+
+        <!-- ================================================================
+             TAB 1: DASHBOARD OVERVIEW
+             ================================================================ -->
+        <div class="tab-pane active" id="tab-dashboard">
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-icon-box bg-red-light">
+                <i class="fa-solid fa-motorcycle"></i>
+              </div>
+              <div class="metric-info">
+                <h3 id="metric-products-count">0</h3>
+                <p>Total Sepeda Motor</p>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box bg-blue-light">
+                <i class="fa-solid fa-comments"></i>
+              </div>
+              <div class="metric-info">
+                <h3 id="metric-testi-count">0</h3>
+                <p>Testimoni Konsumen</p>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box bg-amber-light">
+                <i class="fa-solid fa-bullhorn"></i>
+              </div>
+              <div class="metric-info">
+                <h3>Aktif</h3>
+                <p>Status Banner Promo</p>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box bg-green-light">
+                <i class="fa-brands fa-whatsapp"></i>
+              </div>
+              <div class="metric-info">
+                <h3>Online</h3>
+                <p>WhatsApp Integration</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action Card -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Aksi Cepat Dashboard</h3>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+              <button type="button" class="btn-admin-action btn-primary-action" onclick="switchTab('tab-products'); document.getElementById('btn-add-product').click();">
+                <i class="fa-solid fa-plus"></i> Tambah Sepeda Motor Baru
+              </button>
+              <button type="button" class="btn-admin-action btn-success-action" onclick="switchTab('tab-products'); document.getElementById('btn-open-import').click();">
+                <i class="fa-solid fa-file-excel"></i> Import Pricelist (FIF &amp; OTO)
+              </button>
+              <button type="button" class="btn-admin-action btn-outline-action" onclick="switchTab('tab-hero');">
+                <i class="fa-solid fa-image"></i> Ganti Banner Promo Hero
+              </button>
+              <button type="button" class="btn-admin-action btn-outline-action" onclick="switchTab('tab-template');">
+                <i class="fa-brands fa-whatsapp"></i> Edit Format Pesan Order WhatsApp
+              </button>
+            </div>
+          </div>
+
+          <!-- Help Info Card -->
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title"><i class="fa-solid fa-circle-info"></i> Petunjuk Pengelolaan Data Dealer</h3>
+            </div>
+            <div style="font-size: 0.9rem; color: #475569; line-height: 1.7;">
+              <p>Selamat datang di Dashboard Admin <strong>HengkiHondaJPA</strong>. Semua data yang Anda ubah di sini akan langsung terhubung ke database <strong>Google Firebase (Firestore & Storage)</strong> dan otomatis diperbarui di landing page dealer tanpa perlu edit kode HTML.</p>
+              <ul style="margin: 12px 0 0 20px;">
+                <li><strong>Kelola Motor & Kredit:</strong> Tambah varian warna motor, upload foto motor, atur harga OTR cash, dan atur tabel simulasi cicilan FIF &amp; OTO.</li>
+                <li><strong>Fitur Import:</strong> Anda dapat mengimpor file Excel <code>PL Fif Updated.xlsx</code> dan <code>PL Oto Updated.xlsx</code> atau menginisialisasi seluruh motor sekaligus dengan 1 klik!</li>
+                <li><strong>Template WhatsApp:</strong> Sesuaikan format chat order yang masuk ke WhatsApp sales agar informasi motor, warna, OTR cash, leasing (FIF/OTO), DP, dan tenor langsung rapi terformat.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             TAB 2: KELOLA PRODUK & SIMULASI KREDIT
+             ================================================================ -->
+        <div class="tab-pane" id="tab-products">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title"><i class="fa-solid fa-motorcycle"></i> Daftar Sepeda Motor Honda</h3>
+              <div class="admin-card-actions">
+                <select id="product-filter-cat" class="form-control" style="width: auto; padding: 6px 12px;">
+                  <option value="all">Semua Kategori</option>
+                  <option value="ADV Series">ADV Series</option>
+                  <option value="Beat Series">Beat Series</option>
+                  <option value="PCX Series">PCX Series</option>
+                  <option value="Vario Series">Vario Series</option>
+                  <option value="Scoopy Series">Scoopy Series</option>
+                  <option value="Stylo Series">Stylo Series</option>
+                  <option value="Genio Series">Genio Series</option>
+                  <option value="Supra Series">Supra Series</option>
+                  <option value="Revo Series">Revo Series</option>
+                  <option value="CBR Series">CBR Series</option>
+                  <option value="CB150 Series">CB150 Series</option>
+                  <option value="CRF/Off-Road Series">CRF/Off-Road Series</option>
+                  <option value="CB Verza Series">CB Verza Series</option>
+                  <option value="Forza Series">Forza Series</option>
+                </select>
+                <input type="text" id="product-search-input" class="form-control" placeholder="Cari nama motor..." style="width: 180px; padding: 6px 12px;">
+                <button type="button" class="btn-admin-action btn-outline-action" id="btn-open-categories">
+                  <i class="fa-solid fa-tags"></i> Kategori Seri
+                </button>
+                <button type="button" class="btn-admin-action btn-success-action" id="btn-open-import">
+                  <i class="fa-solid fa-file-import"></i> Import File
+                </button>
+                <button type="button" class="btn-admin-action btn-primary-action" id="btn-add-product">
+                  <i class="fa-solid fa-plus"></i> Tambah Motor
+                </button>
+              </div>
+            </div>
+
+            <div class="admin-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Foto</th>
+                    <th>Nama Motor</th>
+                    <th>Kategori</th>
+                    <th>Harga Cash OTR</th>
+                    <th>Simulasi Kredit</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-products">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             TAB 3: KELOLA HERO & BANNER PROMO
+             ================================================================ -->
+        <div class="tab-pane" id="tab-hero">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title"><i class="fa-solid fa-image"></i> Pengaturan Hero & Banner Promo Overlay</h3>
+            </div>
+
+            <form id="form-hero">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                  <label for="hero-input-title" class="form-label">Judul Utama Hero (Baris 1)</label>
+                  <input type="text" id="hero-input-title" class="form-control" required placeholder="Dealer Resmi Sepeda Motor Honda">
+                </div>
+
+                <div class="form-group">
+                  <label for="hero-input-subtitle" class="form-label">Sub Judul Hero (Baris 2)</label>
+                  <input type="text" id="hero-input-subtitle" class="form-control" required placeholder="HENGKI HONDA JPA">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="hero-input-tagline" class="form-label">Deskripsi / Tagline Hero</label>
+                <textarea id="hero-input-tagline" class="form-control" rows="3" placeholder="Dapatkan promo DP spesial..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="hero-input-cta" class="form-label">Teks Tombol CTA</label>
+                <input type="text" id="hero-input-cta" class="form-control" placeholder="Lihat Pilihan Motor">
+              </div>
+
+              <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--admin-border);">
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Background Image Upload -->
+                <div class="form-group">
+                  <label class="form-label">Foto Background Hero</label>
+                  <input type="file" id="file-hero-bg" class="form-control" accept="image/*">
+                  <small style="color: #64748B;">Disarankan rasio lebar (16:9 atau 1920x800px).</small>
+                  <div style="margin-top: 10px;">
+                    <img id="preview-hero-bg" src="../assets/img/hero/hero-bg.jpg" style="max-height: 160px; border-radius: 8px; border: 1px solid #E2E8F0;" alt="Preview Background">
+                  </div>
+                </div>
+
+                <!-- Promo Banner Overlay Upload -->
+                <div class="form-group">
+                  <label class="form-label">Foto Banner Promo Overlay</label>
+                  <div style="margin-bottom: 8px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; cursor: pointer;">
+                      <input type="checkbox" id="hero-promo-active" checked>
+                      <span>Aktifkan & Tampilkan Banner Promo di Hero</span>
+                    </label>
+                  </div>
+                  <input type="file" id="file-hero-promo" class="form-control" accept="image/*">
+                  <small style="color: #64748B;">Banner ini akan menimpa/overlay di sisi kanan hero.</small>
+                  <div style="margin-top: 10px;">
+                    <img id="preview-hero-promo" src="../assets/img/hero/promo-banner.jpg" style="max-height: 160px; border-radius: 8px; border: 1px solid #E2E8F0;" alt="Preview Promo">
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top: 24px;">
+                <button type="submit" class="btn-admin-action btn-primary-action" id="btn-save-hero">
+                  <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Hero
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             TAB 4: KELOLA TENTANG KAMI
+             ================================================================ -->
+        <div class="tab-pane" id="tab-about">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title"><i class="fa-solid fa-store"></i> Kelola Informasi Tentang Kami</h3>
+            </div>
+
+            <form id="form-about">
+              <div class="form-group">
+                <label for="about-input-title" class="form-label">Judul Bagian</label>
+                <input type="text" id="about-input-title" class="form-control" required placeholder="Dealer Resmi Honda HENGKI HONDA JPA">
+              </div>
+
+              <div class="form-group">
+                <label for="about-input-desc" class="form-label">Deskripsi Lengkap Tentang Dealer</label>
+                <textarea id="about-input-desc" class="form-control" rows="6" required placeholder="Ceritakan tentang showroom, pelayanan, komitmen dealer..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Foto Showroom / Dealer</label>
+                <input type="file" id="file-about-img" class="form-control" accept="image/*">
+                <div style="margin-top: 10px;">
+                  <img id="preview-about-img" src="../assets/img/about/about.jpg" style="max-height: 200px; border-radius: 8px; border: 1px solid #E2E8F0;" alt="Preview Foto Tentang Kami">
+                </div>
+              </div>
+
+              <div style="margin-top: 20px;">
+                <button type="submit" class="btn-admin-action btn-primary-action" id="btn-save-about">
+                  <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Tentang Kami
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Pelayanan Dealer Card (Ukuran Kecil / Compact) -->
+          <div class="admin-card" style="margin-top: 24px;">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title"><i class="fa-solid fa-hand-holding-heart"></i> Pelayanan Dealer (Ukuran Kecil / Compact)</h3>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; display: flex; gap: 14px; align-items: center;">
+                <img src="../assets/img/pelayanan/akurat-cepat.jpg" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #CBD5E1;" alt="Akurat & Cepat">
+                <div>
+                  <span style="font-size: 0.72rem; color: #DC2626; font-weight: 700; text-transform: uppercase;">Layanan 1</span>
+                  <h4 style="font-size: 0.95rem; font-weight: 700; margin: 2px 0 4px;">Pelayanan Akurat &amp; Cepat</h4>
+                  <p style="font-size: 0.8rem; color: #64748B; margin: 0;">Proses kredit cepat, data transparan, dan pengantaran unit tepat waktu.</p>
+                </div>
+              </div>
+
+              <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; display: flex; gap: 14px; align-items: center;">
+                <img src="../assets/img/pelayanan/event-service.jpg" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #CBD5E1;" alt="Event Service">
+                <div>
+                  <span style="font-size: 0.72rem; color: #DC2626; font-weight: 700; text-transform: uppercase;">Layanan 2</span>
+                  <h4 style="font-size: 0.95rem; font-weight: 700; margin: 2px 0 4px;">Event Service Honda</h4>
+                  <p style="font-size: 0.8rem; color: #64748B; margin: 0;">Layanan perawatan berkala, promo event service resmi, dan teknisi ahli bersertifikasi Honda.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             TAB 5: KELOLA ULASAN KONSUMEN (TEKS)
+             ================================================================ -->
+        <div class="tab-pane" id="tab-testimonials">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title"><i class="fa-solid fa-comments"></i> Kelola Ulasan Konsumen (Teks)</h3>
+              <button type="button" class="btn-admin-action btn-primary-action" id="btn-add-testi">
+                <i class="fa-solid fa-plus"></i> Tambah Ulasan Baru
+              </button>
+            </div>
+
+            <div class="admin-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width: 50px; text-align: center;">#</th>
+                    <th>Nama Konsumen</th>
+                    <th>Rating</th>
+                    <th>Ulasan / Komentar</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-testimonials">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             TAB 6: KELOLA KONTAK & SOSIAL MEDIA
+             ================================================================ -->
+        <div class="tab-pane" id="tab-contact">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title"><i class="fa-solid fa-address-book"></i> Pengaturan Kontak & Sosial Media</h3>
+            </div>
+
+            <form id="form-contact">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                  <label for="contact-input-alamat" class="form-label">Alamat Lengkap Dealer</label>
+                  <input type="text" id="contact-input-alamat" class="form-control" required placeholder="Palabuhanratu, Kab. Sukabumi, Jawa Barat">
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-input-jam" class="form-label">Jam Operasional</label>
+                  <input type="text" id="contact-input-jam" class="form-control" required placeholder="Senin - Sabtu: 08.00 - 17.00 WIB | Minggu: 09.00 - 15.00 WIB">
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                  <label for="contact-input-wa-num" class="form-label">Nomor WhatsApp Langsung (Aktual)</label>
+                  <input type="text" id="contact-input-wa-num" class="form-control" placeholder="Contoh: 081313133505">
+                  <small style="color: #64748B;">Pengunjung yang klik pesan langsung diarahkan ke nomor ini dengan format pesan otomatis.</small>
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-input-wa-link" class="form-label">Link WhatsApp Resmi (wa.me/...)</label>
+                  <input type="text" id="contact-input-wa-link" class="form-control" placeholder="https://wa.me/6281313133505">
+                  <small style="color: #64748B;">Link WhatsApp resmi HENGKI HONDA JPA.</small>
+                </div>
+              </div>
+
+              <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--admin-border);">
+
+              <h4 style="font-weight: 700; margin-bottom: 14px;">Tautan Akun Sosial Media</h4>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                <div class="form-group">
+                  <label for="contact-input-ig" class="form-label"><i class="fa-brands fa-instagram" style="color: #E1306C;"></i> Instagram</label>
+                  <input type="text" id="contact-input-ig" class="form-control" placeholder="https://www.instagram.com/hengki1978/">
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-input-tiktok" class="form-label"><i class="fa-brands fa-tiktok"></i> TikTok</label>
+                  <input type="text" id="contact-input-tiktok" class="form-control" placeholder="https://www.tiktok.com/@hengki.honda.jpa">
+                </div>
+
+                <div class="form-group">
+                  <label for="contact-input-fb" class="form-label"><i class="fa-brands fa-facebook" style="color: #1877F2;"></i> Facebook</label>
+                  <input type="text" id="contact-input-fb" class="form-control" placeholder="">
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 10px;">
+                <label for="contact-input-maps" class="form-label">URL Embed Google Maps</label>
+                <input type="text" id="contact-input-maps" class="form-control" placeholder="https://maps.google.com/maps?q=-6.1096361,106.8885471+(Jaya+Perkasa+Abadi.+PT)&t=&z=16&ie=UTF8&iwloc=B&output=embed">
+                <small style="color: #64748B;">Salin URL dari Google Maps (Jaya Perkasa Abadi. PT) -> Bagikan -> Sematkan Peta -> salin link src iframe.</small>
+              </div>
+
+              <div style="margin-top: 20px;">
+                <button type="submit" class="btn-admin-action btn-primary-action" id="btn-save-contact">
+                  <i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan Kontak
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             TAB 7: KELOLA TEMPLATE WHATSAPP
+             ================================================================ -->
+        <div class="tab-pane" id="tab-template">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title"><i class="fa-brands fa-whatsapp"></i> Format Template Pesan Order WhatsApp</h3>
+            </div>
+
+            <form id="form-template">
+              <p style="font-size: 0.88rem; color: #64748B; margin-bottom: 14px;">
+                Pesan ini otomatis di-generate saat konsumen menekan tombol <strong>"Pesan via WhatsApp"</strong> di modal detail motor. Klik tombol variabel di bawah untuk menyisipkan variabel ke teks:
+              </p>
+
+              <div id="template-tags-container" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;">
+                <button type="button" class="btn-admin-action btn-outline-action template-tag-btn" data-tag="{namaMotor}">+ {namaMotor}</button>
+                <button type="button" class="btn-admin-action btn-outline-action template-tag-btn" data-tag="{warna}">+ {warna}</button>
+                <button type="button" class="btn-admin-action btn-outline-action template-tag-btn" data-tag="{dp}">+ {dp}</button>
+                <button type="button" class="btn-admin-action btn-outline-action template-tag-btn" data-tag="{tenor}">+ {tenor}</button>
+                <button type="button" class="btn-admin-action btn-outline-action template-tag-btn" data-tag="{cicilan}">+ {cicilan}</button>
+                <button type="button" class="btn-admin-action btn-outline-action template-tag-btn" data-tag="{hargaCash}">+ {hargaCash}</button>
+              </div>
+
+              <div class="form-group">
+                <label for="template-input-text" class="form-label">Isi Template Pesan</label>
+                <textarea id="template-input-text" class="form-control" rows="6" required style="font-family: monospace; font-size: 0.9rem;"></textarea>
+              </div>
+
+              <!-- Live Preview -->
+              <div style="background-color: #F8FAFC; border: 1.5px dashed #CBD5E1; border-radius: 8px; padding: 16px; margin: 18px 0;">
+                <div style="font-size: 0.78rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-bottom: 6px;">
+                  <i class="fa-solid fa-eye"></i> Contoh Tampilan Pesan yang Diterima di WhatsApp:
+                </div>
+                <div id="template-preview-text" style="white-space: pre-wrap; font-size: 0.92rem; color: #1E293B; background: #FFF; padding: 12px; border-radius: 6px; border: 1px solid #E2E8F0;">
+                  -
+                </div>
+              </div>
+
+              <button type="submit" class="btn-admin-action btn-primary-action" id="btn-save-template">
+                <i class="fa-solid fa-floppy-disk"></i> Simpan Template WhatsApp
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 1: TAMBAH / EDIT MOTOR & SIMULASI KREDIT
+       ====================================================================== -->
+  <div class="admin-modal-overlay" id="modal-product">
+    <div class="admin-modal-box" style="max-width: 850px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="modal-product-title">Tambah Sepeda Motor Baru</h3>
+        <button type="button" class="admin-modal-close" id="modal-product-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="form-product" style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
+        <div class="admin-modal-body">
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 14px;">
+            <div class="form-group">
+              <label class="form-label">Nama Sepeda Motor *</label>
+              <input type="text" id="prod-input-nama" class="form-control" required placeholder="Contoh: Honda BeAT CBS">
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="form-label" style="margin-bottom: 0;">Kategori Seri *</label>
+                <button type="button" id="btn-quick-add-category" style="background: none; border: none; color: #DC2626; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; padding: 0;">
+                  <i class="fa-solid fa-circle-plus"></i> + Kategori Baru
+                </button>
+              </div>
+              <select id="prod-input-kategori" class="form-control" required>
+                <option value="ADV Series">ADV Series</option>
+                <option value="Beat Series">Beat Series</option>
+                <option value="PCX Series">PCX Series</option>
+                <option value="Vario Series">Vario Series</option>
+                <option value="Scoopy Series">Scoopy Series</option>
+                <option value="Stylo Series">Stylo Series</option>
+                <option value="Genio Series">Genio Series</option>
+                <option value="Supra Series">Supra Series</option>
+                <option value="Revo Series">Revo Series</option>
+                <option value="CBR Series">CBR Series</option>
+                <option value="CB150 Series">CB150 Series</option>
+                <option value="CRF/Off-Road Series">CRF/Off-Road Series</option>
+                <option value="CB Verza Series">CB Verza Series</option>
+                <option value="Forza Series">Forza Series</option>
+                <option value="__NEW__">➕ Tambah Kategori Baru...</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="form-group">
+              <label class="form-label">Harga OTR Cash Resmi (Rp) *</label>
+              <input type="number" id="prod-input-otr" class="form-control" required placeholder="Contoh: 19577000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Harga Cash + Asuransi (Rp)</label>
+              <input type="number" id="prod-input-cash" class="form-control" placeholder="Contoh: 20277000">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Deskripsi Singkat Motor</label>
+            <textarea id="prod-input-desc" class="form-control" rows="2" placeholder="Spesifikasi ringkas, kelebihan, mesin..."></textarea>
+          </div>
+
+          <!-- Color Variants -->
+          <hr style="margin: 18px 0; border: none; border-top: 1px solid var(--admin-border);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <h4 style="font-weight: 700; font-size: 0.95rem;"><i class="fa-solid fa-palette"></i> Varian Warna & Foto Motor</h4>
+            <button type="button" class="btn-admin-action btn-outline-action" id="btn-add-color-variant" style="padding: 4px 10px; font-size: 0.78rem;">
+              <i class="fa-solid fa-plus"></i> Tambah Warna
+            </button>
+          </div>
+          <div id="colors-container">
+            <!-- Rendered via JS -->
+          </div>
+
+          <!-- Simulation Kredit Dual (FIF & OTO) -->
+          <hr style="margin: 18px 0; border: none; border-top: 1px solid var(--admin-border);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <h4 style="font-weight: 700; font-size: 0.95rem;"><i class="fa-solid fa-calculator"></i> Data Simulasi Kredit (FIF &amp; OTO)</h4>
+              <small style="color: #64748B;">Kelola paket DP, Tenor, dan Cicilan untuk masing-masing leasing.</small>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn-admin-action btn-outline-action" id="btn-quick-generate-sim" style="padding: 4px 10px; font-size: 0.78rem;">
+                <i class="fa-solid fa-bolt"></i> Generate Otomatis DP
+              </button>
+              <button type="button" class="btn-admin-action btn-outline-action" id="btn-add-sim-row" style="padding: 4px 10px; font-size: 0.78rem;">
+                <i class="fa-solid fa-plus"></i> Tambah Baris
+              </button>
+            </div>
+          </div>
+
+          <!-- Simulation Leasing Switcher -->
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <button type="button" id="admin-tab-sim-fif" class="btn-admin-action btn-primary-action" style="padding: 6px 14px; font-size: 0.8rem;">
+              <i class="fa-solid fa-building-columns"></i> Simulasi FIF (<span id="admin-count-sim-fif">0</span>)
+            </button>
+            <button type="button" id="admin-tab-sim-oto" class="btn-admin-action btn-outline-action" style="padding: 6px 14px; font-size: 0.8rem;">
+              <i class="fa-solid fa-car-side"></i> Simulasi OTO (<span id="admin-count-sim-oto">0</span>)
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 40px; gap: 8px; margin-bottom: 4px; font-size: 0.75rem; font-weight: 700; color: #64748B; text-transform: uppercase;">
+            <div>Uang Muka (DP)</div>
+            <div>Tenor</div>
+            <div>Cicilan per Bulan</div>
+            <div></div>
+          </div>
+          <div id="simulations-container" style="max-height: 220px; overflow-y: auto; padding-right: 4px;">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="btn-admin-action btn-outline-action" onclick="document.getElementById('modal-product').classList.remove('active');">Batal</button>
+          <button type="submit" class="btn-admin-action btn-primary-action" id="btn-save-prod">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan Sepeda Motor
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 2: IMPORT FILE (EXCEL / JSON) & SEED DATA
+       ====================================================================== -->
+  <div class="admin-modal-overlay" id="modal-import">
+    <div class="admin-modal-box" style="max-width: 600px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title"><i class="fa-solid fa-file-import"></i> Import Data Motor & Pricelist</h3>
+        <button type="button" class="admin-modal-close" id="modal-import-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="admin-modal-body">
+        <!-- 1-Click Fast Seeder -->
+        <div style="background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%); border: 1.5px solid #FECACA; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <h4 style="font-weight: 800; color: #B91C1C; margin-bottom: 4px;">
+            <i class="fa-solid fa-bolt"></i> Inisialisasi 46 Motor Sekaligus (1-Klik)
+          </h4>
+          <p style="font-size: 0.85rem; color: #7F1D1D; margin-bottom: 12px;">
+            Sistem telah menyiapkan data lengkap 46 model motor Honda beserta simulasi kredit <strong>FIF (FIFASTRA)</strong> dan <strong>OTO (OTO Multiartha)</strong>. Anda dapat mengupload seluruh datanya ke database Firestore dengan sekali klik!
+          </p>
+          <button type="button" class="btn-admin-action btn-primary-action" id="btn-one-click-seed" style="width: 100%;">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Upload Semua 46 Motor ke Firestore Sekarang
+          </button>
+        </div>
+
+        <div style="text-align: center; color: #94A3B8; font-weight: 700; font-size: 0.8rem; margin-bottom: 16px;">
+          --- ATAU UPLOAD FILE SENDIRI ---
+        </div>
+
+        <!-- Custom Upload -->
+        <div class="form-group">
+          <label class="form-label">Pilih File JSON atau Excel (.xls / .xlsx)</label>
+          <input type="file" id="import-file-input" class="form-control" accept=".json, .xls, .xlsx">
+          <small style="color: #64748B;">Mendukung file Excel pricelist dealer atau file JSON hasil export.</small>
+        </div>
+
+        <!-- Progress Box -->
+        <div id="import-progress-box" style="display: none; margin-top: 16px;">
+          <div style="font-size: 0.82rem; font-weight: 600; color: #1E293B; margin-bottom: 6px;" id="import-progress-text">Memproses import...</div>
+          <div style="height: 8px; width: 100%; background: #E2E8F0; border-radius: 4px; overflow: hidden;">
+            <div id="import-progress-bar" style="height: 100%; width: 0%; background: var(--admin-red); transition: width 0.2s;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-admin-action btn-outline-action" onclick="document.getElementById('modal-import').classList.remove('active');">Tutup</button>
+        <button type="button" class="btn-admin-action btn-success-action" id="btn-start-import">
+          <i class="fa-solid fa-upload"></i> Proses File Upload
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 3: TAMBAH / EDIT ULASAN KONSUMEN (TEKS)
+       ====================================================================== -->
+  <div class="admin-modal-overlay" id="modal-testi">
+    <div class="admin-modal-box" style="max-width: 500px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title" id="modal-testi-title">Tambah Ulasan Konsumen (Teks)</h3>
+        <button type="button" class="admin-modal-close" id="modal-testi-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="form-testi">
+        <div class="admin-modal-body">
+          <div class="form-group">
+            <label class="form-label">Nama Konsumen *</label>
+            <input type="text" id="testi-input-nama" class="form-control" required placeholder="Contoh: Budi Santoso">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Rating Bintang *</label>
+            <select id="testi-input-rating" class="form-control" required>
+              <option value="5">⭐⭐⭐⭐⭐ (5 Bintang - Sangat Puas)</option>
+              <option value="4">⭐⭐⭐⭐ (4 Bintang - Puas)</option>
+              <option value="3">⭐⭐⭐ (3 Bintang - Cukup)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Komentar / Ulasan *</label>
+            <textarea id="testi-input-komentar" class="form-control" rows="4" required placeholder="Tuliskan pengalaman konsumen belanja motor di dealer..."></textarea>
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="btn-admin-action btn-outline-action" onclick="document.getElementById('modal-testi').classList.remove('active');">Batal</button>
+          <button type="submit" class="btn-admin-action btn-primary-action" id="btn-save-testi">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan Ulasan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 4: KELOLA KATEGORI SERI SEPEDA MOTOR
+       ====================================================================== -->
+  <div class="admin-modal-overlay" id="modal-categories">
+    <div class="admin-modal-box" style="max-width: 620px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title"><i class="fa-solid fa-tags"></i> Kelola Kategori Seri Motor</h3>
+        <button type="button" class="admin-modal-close" id="modal-categories-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="admin-modal-body" style="padding: 20px;">
+        <!-- Form Tambah Kategori Baru -->
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <label class="form-label" style="font-weight: 700; margin-bottom: 6px;">Tambah Kategori Seri Baru</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="input-new-category-name" class="form-control" placeholder="Contoh: Sonic Series, CT125 Series..." style="flex: 1;">
+            <button type="button" class="btn-admin-action btn-primary-action" id="btn-submit-new-category" style="white-space: nowrap;">
+              <i class="fa-solid fa-plus"></i> Tambah Kategori
+            </button>
+          </div>
+          <div style="font-size: 0.76rem; color: #64748B; margin-top: 8px;">
+            <i class="fa-solid fa-circle-info"></i> Kategori yang ditambahkan akan otomatis tersimpan dan dapat langsung dipilih saat menambah/mengedit motor.
+          </div>
+        </div>
+
+        <!-- Daftar Kategori Saat Ini -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <label class="form-label" style="font-weight: 700; margin-bottom: 0;">Daftar Kategori Seri Aktif</label>
+          <span id="category-total-badge" style="font-size: 0.75rem; background: #E2E8F0; color: #475569; padding: 2px 8px; border-radius: 12px; font-weight: 600;">14 Seri</span>
+        </div>
+        <div id="category-manager-list" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; padding-right: 4px;">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-admin-action btn-outline-action" onclick="document.getElementById('modal-categories').classList.remove('active');">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       MODAL 5: PENGATURAN KONEKSI FIREBASE
+       ====================================================================== -->
+  <div class="admin-modal-overlay" id="modal-firebase">
+    <div class="admin-modal-box" style="max-width: 580px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title"><i class="fa-solid fa-cloud" style="color: #059669;"></i> Sambungan Firebase (hengkihonda-d1f23)</h3>
+        <button type="button" class="admin-modal-close" id="modal-firebase-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="form-firebase-config">
+        <div class="admin-modal-body" style="padding: 20px;">
+          <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 14px; margin-bottom: 18px; font-size: 0.85rem; color: #166534; line-height: 1.5;">
+            <strong><i class="fa-solid fa-circle-info"></i> Petunjuk Kredensial Web Firebase:</strong><br>
+            Project ID: <code>hengkihonda-d1f23</code> | Auth Domain: <code>hengkihonda-d1f23.firebaseapp.com</code><br>
+            Dapatkan <strong>Web API Key</strong> dan <strong>App ID</strong> dari Firebase Console (Project Settings &rarr; General &rarr; Your apps &rarr; Web app &lt;/&gt;).
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 700;">Project ID</label>
+            <input type="text" id="fb-input-project-id" class="form-control" value="hengkihonda-d1f23" readonly style="background: #F8FAFC;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 700;">Auth Domain</label>
+            <input type="text" id="fb-input-auth-domain" class="form-control" value="hengkihonda-d1f23.firebaseapp.com" readonly style="background: #F8FAFC;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 700;">Web API Key *</label>
+            <input type="text" id="fb-input-api-key" class="form-control" placeholder="Contoh: AIzaSyA... (Dapatkan dari Firebase Console)" required>
+            <small style="color: #64748B;">Kunci Web API resmi dari Google Cloud / Firebase Console.</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 700;">Web App ID *</label>
+            <input type="text" id="fb-input-app-id" class="form-control" placeholder="Contoh: 1:1005709036852:web:..." required>
+            <small style="color: #64748B;">Web App ID yang terdaftar di Firebase Console.</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="font-weight: 700;">Storage Bucket</label>
+            <input type="text" id="fb-input-storage-bucket" class="form-control" value="hengkihonda-d1f23.firebasestorage.app">
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="btn-admin-action btn-outline-action" id="btn-firebase-cancel">Batal</button>
+          <button type="submit" class="btn-admin-action btn-primary-action" id="btn-save-firebase">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan &amp; Hubungkan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Application Bootstrapper -->
+  <script type="module">
+    import "./js/admin-auth.js";
+    import { isFirebaseConfigured, firebaseConfig, saveFirebaseConfig } from "../js/firebase-config.js";
+    import { initAdminProducts } from "./js/admin-products.js";
+    import { initAdminHero } from "./js/admin-hero.js";
+    import { initAdminAbout } from "./js/admin-about.js";
+    import { initAdminTestimonials } from "./js/admin-testimonials.js";
+    import { initAdminContact } from "./js/admin-contact.js";
+
+    // Tab Switching Logic
+    window.switchTab = function(tabId) {
+      document.querySelectorAll(".tab-pane").forEach(pane => pane.classList.remove("active"));
+      document.querySelectorAll(".sidebar-link").forEach(link => link.classList.remove("active"));
+
+      const targetPane = document.getElementById(tabId);
+      if (targetPane) targetPane.classList.add("active");
+
+      const activeLink = document.querySelector(`.sidebar-link[data-tab="${tabId}"]`);
+      if (activeLink) activeLink.classList.add("active");
+
+      // Update Topbar Title
+      const pageTitle = document.getElementById("page-title");
+      if (pageTitle && activeLink) {
+        const span = activeLink.querySelector("span");
+        if (span) pageTitle.textContent = span.textContent;
+      }
+
+      // Close mobile sidebar if open
+      document.getElementById("admin-sidebar")?.classList.remove("show");
+    };
+
+    function bindAdminEvents() {
+      // Sidebar Tab Links
+      document.querySelectorAll(".sidebar-link").forEach(link => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const tabId = link.dataset.tab;
+          if (tabId) window.switchTab(tabId);
+        });
+      });
+
+      // Mobile Sidebar Toggle
+      const toggleBtn = document.getElementById("sidebar-toggle");
+      const sidebar = document.getElementById("admin-sidebar");
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          sidebar.classList.toggle("show");
+        });
+      }
+
+      // Modal close buttons (all modals)
+      document.querySelectorAll(".admin-modal-close").forEach(btn => {
+        btn.addEventListener("click", () => {
+          btn.closest(".admin-modal-overlay")?.classList.remove("active");
+        });
+      });
+
+      // Backdrop click to close modals
+      document.querySelectorAll(".admin-modal-overlay").forEach(overlay => {
+        overlay.addEventListener("click", (e) => {
+          if (e.target === overlay) overlay.classList.remove("active");
+        });
+      });
+
+      // Firebase Status Badge & Modal
+      const fbBadge = document.getElementById("btn-firebase-badge");
+      const fbIcon = document.getElementById("fb-status-icon");
+      const fbText = document.getElementById("fb-status-text");
+      const fbModal = document.getElementById("modal-firebase");
+      const fbForm = document.getElementById("form-firebase-config");
+
+      if (fbBadge && fbIcon && fbText) {
+        if (isFirebaseConfigured) {
+          fbBadge.style.background = "rgba(16, 185, 129, 0.1)";
+          fbBadge.style.borderColor = "rgba(16, 185, 129, 0.3)";
+          fbBadge.style.color = "#047857";
+          fbIcon.className = "fa-solid fa-circle-check";
+          fbIcon.style.color = "#10B981";
+          fbText.textContent = "Firebase: Terhubung";
+        } else {
+          fbBadge.style.background = "rgba(245, 158, 11, 0.12)";
+          fbBadge.style.borderColor = "rgba(245, 158, 11, 0.35)";
+          fbBadge.style.color = "#B45309";
+          fbIcon.className = "fa-solid fa-triangle-exclamation";
+          fbIcon.style.color = "#F59E0B";
+          fbText.textContent = "Sambungkan Firebase";
+        }
+
+        fbBadge.addEventListener("click", () => {
+          if (fbModal) {
+            document.getElementById("fb-input-api-key").value = (firebaseConfig.apiKey && firebaseConfig.apiKey !== "...") ? firebaseConfig.apiKey : "";
+            document.getElementById("fb-input-app-id").value = (firebaseConfig.appId && firebaseConfig.appId !== "...") ? firebaseConfig.appId : "";
+            fbModal.classList.add("active");
+          }
+        });
+      }
+
+      document.getElementById("modal-firebase-close")?.addEventListener("click", () => fbModal?.classList.remove("active"));
+      document.getElementById("btn-firebase-cancel")?.addEventListener("click", () => fbModal?.classList.remove("active"));
+
+      if (fbForm) {
+        fbForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const apiKey = document.getElementById("fb-input-api-key").value.trim();
+          const appId = document.getElementById("fb-input-app-id").value.trim();
+          const storageBucket = document.getElementById("fb-input-storage-bucket").value.trim();
+          if (!apiKey || !appId) {
+            alert("Harap masukkan Web API Key dan Web App ID dari Firebase Console.");
+            return;
+          }
+          saveFirebaseConfig({ apiKey, appId, storageBucket });
+          alert("Konfigurasi Firebase berhasil disimpan! Halaman akan direfresh untuk mengaktifkan koneksi ke hengkihonda-d1f23.");
+          window.location.reload();
+        });
+      }
+    }
+
+    async function bootAdminApp() {
+      bindAdminEvents();
+
+      // Initialize all admin subsystems safely
+      try { await initAdminProducts(); } catch (e) { console.warn("Admin Products init:", e); }
+      try { await initAdminHero(); } catch (e) { console.warn("Admin Hero init:", e); }
+      try { await initAdminAbout(); } catch (e) { console.warn("Admin About init:", e); }
+      try { await initAdminTestimonials(); } catch (e) { console.warn("Admin Testimonials init:", e); }
+      try { await initAdminContact(); } catch (e) { console.warn("Admin Contact init:", e); }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bootAdminApp);
+    } else {
+      bootAdminApp();
+    }
+  </script>
+</body>
+</html>
