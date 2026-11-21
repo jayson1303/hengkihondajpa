@@ -139,12 +139,14 @@ fif_data = {}
 for sname in wb_fif.sheetnames:
     ws = wb_fif[sname]
     
-    # Left side tenors
+    # Left side tenors (row 7)
     tenors_left = {}
     for c in range(4, 15):
         v = ws.cell(7, c).value
         if v and str(v).isdigit():
             tenors_left[c] = int(v)
+        elif v is not None and not str(v).isdigit():
+            break
             
     # Right side detection
     dp_col_right = None
@@ -160,50 +162,58 @@ for sname in wb_fif.sheetnames:
                 tv = ws.cell(7, tc).value
                 if tv and str(tv).isdigit():
                     tenors_right[tc] = int(tv)
+                elif tv is not None and not str(tv).isdigit():
+                    break
             break
             
-    current_left = None
-    current_right = None
-    
-    for r in range(10, ws.max_row+1):
-        # Left side
+    # Left side model blocks (model_col=1, dp_col=3)
+    for r in range(8, ws.max_row + 1):
         c1 = ws.cell(r, 1).value
-        if isinstance(c1, int):
-            m_name = ws.cell(r+2, 1).value
-            otr = ws.cell(r+4, 1).value
-            if m_name and not str(m_name).strip().isdigit():
-                current_left = str(m_name).strip()
-                fif_data[current_left] = {'otr': otr, 'sims': []}
-            else:
-                current_left = None
+        if isinstance(c1, int) and c1 < 1000:
+            m_name = ws.cell(r + 2, 1).value
+            otr = ws.cell(r + 4, 1).value
+            if m_name and isinstance(m_name, str) and not m_name.strip().isdigit():
+                model_name = m_name.strip()
+                otr_val = otr if isinstance(otr, (int, float)) else 0
+                sims = []
+                for row_offset in range(15):
+                    cur_r = r + row_offset
+                    dp_val = ws.cell(cur_r, 3).value
+                    if dp_val and isinstance(dp_val, (int, float)):
+                        dp = int(dp_val * 1000)
+                        for c, tenor in tenors_left.items():
+                            cicilan = ws.cell(cur_r, c).value
+                            if cicilan and isinstance(cicilan, (int, float)):
+                                sims.append({'dp': dp, 'tenor': tenor, 'cicilan': int(cicilan * 1000)})
+                fif_data[model_name] = {'otr': otr_val, 'sims': sims}
+                clean_name = model_name.rstrip('/').strip()
+                if clean_name not in fif_data:
+                    fif_data[clean_name] = {'otr': otr_val, 'sims': sims}
                 
-        dp_left = ws.cell(r, 3).value
-        if current_left and dp_left and isinstance(dp_left, (int, float)):
-            dp = int(dp_left * 1000)
-            for c, tenor in tenors_left.items():
-                cicilan = ws.cell(r, c).value
-                if cicilan and isinstance(cicilan, (int, float)):
-                    fif_data[current_left]['sims'].append({'dp': dp, 'tenor': tenor, 'cicilan': int(cicilan * 1000)})
-                    
-        # Right side
-        if model_col_right:
+    # Right side model blocks
+    if model_col_right and dp_col_right:
+        for r in range(8, ws.max_row + 1):
             cm = ws.cell(r, model_col_right).value
-            if isinstance(cm, int):
-                m_name = ws.cell(r+2, model_col_right).value
-                otr = ws.cell(r+4, model_col_right).value
-                if m_name and not str(m_name).strip().isdigit():
-                    current_right = str(m_name).strip()
-                    fif_data[current_right] = {'otr': otr, 'sims': []}
-                else:
-                    current_right = None
-                    
-            dp_right = ws.cell(r, dp_col_right).value
-            if current_right and dp_right and isinstance(dp_right, (int, float)):
-                dp = int(dp_right * 1000)
-                for c, tenor in tenors_right.items():
-                    cicilan = ws.cell(r, c).value
-                    if cicilan and isinstance(cicilan, (int, float)):
-                        fif_data[current_right]['sims'].append({'dp': dp, 'tenor': tenor, 'cicilan': int(cicilan * 1000)})
+            if isinstance(cm, int) and cm < 1000:
+                m_name = ws.cell(r + 2, model_col_right).value
+                otr = ws.cell(r + 4, model_col_right).value
+                if m_name and isinstance(m_name, str) and not m_name.strip().isdigit():
+                    model_name = m_name.strip()
+                    otr_val = otr if isinstance(otr, (int, float)) else 0
+                    sims = []
+                    for row_offset in range(15):
+                        cur_r = r + row_offset
+                        dp_val = ws.cell(cur_r, dp_col_right).value
+                        if dp_val and isinstance(dp_val, (int, float)):
+                            dp = int(dp_val * 1000)
+                            for c, tenor in tenors_right.items():
+                                cicilan = ws.cell(cur_r, c).value
+                                if cicilan and isinstance(cicilan, (int, float)):
+                                    sims.append({'dp': dp, 'tenor': tenor, 'cicilan': int(cicilan * 1000)})
+                    fif_data[model_name] = {'otr': otr_val, 'sims': sims}
+                    clean_name = model_name.rstrip('/').strip()
+                    if clean_name not in fif_data:
+                        fif_data[clean_name] = {'otr': otr_val, 'sims': sims}
 
 print(f"Parsed {len(fif_data)} distinct models from FIF across all sheets!")
 
@@ -540,7 +550,7 @@ products = []
 
 for folder, (fif_key, oto_key, display_name, cat) in folder_mapping.items():
     # Retrieve OTR Cash
-    fif_entry = fif_data.get(fif_key, None)
+    fif_entry = fif_data.get(fif_key) or (fif_data.get(fif_key.rstrip('/').strip()) if fif_key else None) or (fif_data.get(fif_key.strip()) if fif_key else None)
     oto_entry = oto_data.get(oto_key, None) if oto_key else None
     
     price_otr = 0

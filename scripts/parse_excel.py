@@ -1,125 +1,109 @@
+# ==============================================================================
+# HENGKI HONDA JPA - scripts/parse_excel.py
+# Parser Price List FIF (PL Fif Updated.xlsx) - 15 Baris DP per Model
+# ==============================================================================
+
 import os
 import json
-import re
-import pandas as pd
+import openpyxl
 
-excel_path = 'Pricelist/PL JULI 2026 DP BESAR.xls'
-xl = pd.ExcelFile(excel_path)
+EXCEL_PATH = 'Price List/PL FIF + Logo/PL Fif Updated.xlsx'
 
-foto_base = 'Foto Produk'
-foto_dirs = [f for f in os.listdir(foto_base) if os.path.isdir(os.path.join(foto_base, f))]
+def parse_fif_pricelist(excel_path=EXCEL_PATH):
+    if not os.path.exists(excel_path):
+        raise FileNotFoundError(f"File tidak ditemukan: {excel_path}")
 
-def clean_key(s):
-    s = s.upper()
-    for drop in ['ALL NEW', 'ALL', 'SPORTY', 'DELUXE', 'NEW', ' ']:
-        s = s.replace(drop, '')
-    return re.sub(r'[^A-Z0-9]', '', s)
+    wb = openpyxl.load_workbook(excel_path, data_only=True)
+    fif_data = {}
 
-# Map sheets to photo folders
-folder_map = {}
-for sheet in xl.sheet_names:
-    s_key = clean_key(sheet)
-    best_match = None
-    for fd in foto_dirs:
-        fd_key = clean_key(fd)
-        if s_key == fd_key:
-            best_match = fd
-            break
-    if not best_match:
-        for fd in foto_dirs:
-            fd_key = clean_key(fd)
-            if s_key in fd_key or fd_key in s_key:
-                best_match = fd
+    for sname in wb.sheetnames:
+        ws = wb[sname]
+
+        # Tenor kolom kiri (baris 7)
+        tenors_left = {}
+        for c in range(4, 15):
+            v = ws.cell(7, c).value
+            if v and str(v).isdigit():
+                tenors_left[c] = int(v)
+            elif v is not None and not str(v).isdigit():
                 break
-    folder_map[sheet] = best_match
 
-products = []
-for sheet in xl.sheet_names:
-    df = xl.parse(sheet, header=None)
-    raw_name = str(df.iloc[0, 2]).strip() if pd.notna(df.iloc[0, 2]) else sheet
-    raw_price = df.iloc[1, 2] if pd.notna(df.iloc[1, 2]) else 0
-    try:
-        price_otr = int(float(raw_price))
-    except:
-        price_otr = 0
+        # Deteksi kolom kanan (cari 'UANG MUKA' di baris 6)
+        dp_col_right = None
+        tenors_right = {}
+        model_col_right = None
 
-    tenor_cols = {}
-    for c in range(1, 10):
-        val = df.iloc[4, c]
-        if pd.notna(val) and isinstance(val, (int, float)):
-            tenor_cols[c] = int(val)
+        for c in range(10, 20):
+            v = ws.cell(6, c).value
+            if v and 'UANG' in str(v).upper():
+                dp_col_right = c
+                model_col_right = c - 2
+                for tc in range(c + 1, ws.max_column + 1):
+                    tv = ws.cell(7, tc).value
+                    if tv and str(tv).isdigit():
+                        tenors_right[tc] = int(tv)
+                    elif tv is not None and not str(tv).isdigit():
+                        break
+                break
 
-    simulasi = []
-    for r in range(5, len(df)):
-        dp_val = df.iloc[r, 0]
-        if pd.isna(dp_val) or not isinstance(dp_val, (int, float)) or dp_val < 100000:
-            break
-        dp = int(dp_val)
-        for c, tenor in tenor_cols.items():
-            cicilan_val = df.iloc[r, c]
-            if pd.notna(cicilan_val) and isinstance(cicilan_val, (int, float)):
-                simulasi.append({
-                    "dp": dp,
-                    "tenor": tenor,
-                    "cicilan": int(cicilan_val)
-                })
+        # Blok Kiri (model_col = 1, dp_col = 3)
+        for r in range(8, ws.max_row + 1):
+            c1 = ws.cell(r, 1).value
+            if isinstance(c1, int) and c1 < 1000:
+                m_name = ws.cell(r + 2, 1).value
+                otr = ws.cell(r + 4, 1).value
+                if m_name and isinstance(m_name, str) and not m_name.strip().isdigit():
+                    model_name = m_name.strip()
+                    otr_val = otr if isinstance(otr, (int, float)) else 0
+                    sims = []
+                    # Membaca seluruh 15 baris DP
+                    for row_offset in range(15):
+                        cur_r = r + row_offset
+                        dp_val = ws.cell(cur_r, 3).value
+                        if dp_val and isinstance(dp_val, (int, float)):
+                            dp_rp = int(dp_val * 1000)
+                            for c, tenor in tenors_left.items():
+                                cicilan = ws.cell(cur_r, c).value
+                                if cicilan and isinstance(cicilan, (int, float)):
+                                    sims.append({
+                                        'dp': dp_rp,
+                                        'tenor': tenor,
+                                        'cicilan': int(cicilan * 1000)
+                                    })
+                    fif_data[model_name] = {'sheet': sname, 'otr': otr_val, 'sims': sims}
 
-    upper = sheet.upper()
-    if 'ADV' in upper: cat = 'ADV Series'
-    elif 'BEAT' in upper: cat = 'Beat Series'
-    elif 'PCX' in upper: cat = 'PCX Series'
-    elif 'VARIO' in upper: cat = 'Vario Series'
-    elif 'SCOOPY' in upper: cat = 'Scoopy Series'
-    elif 'STYLO' in upper: cat = 'Stylo Series'
-    elif 'GENIO' in upper: cat = 'Genio Series'
-    elif 'SUPRA' in upper or 'SUPTA' in upper: cat = 'Supra Series'
-    elif 'REVO' in upper: cat = 'Revo Series'
-    elif 'CBR' in upper: cat = 'CBR Series'
-    elif 'CB150R' in upper or 'CB150X' in upper or ('CB150' in upper and 'VERZA' not in upper): cat = 'CB150 Series'
-    elif 'CRF' in upper: cat = 'CRF/Off-Road Series'
-    elif 'VERZA' in upper: cat = 'CB Verza Series'
-    elif 'FORZA' in upper: cat = 'Forza Series'
-    else: cat = 'Beat Series'
+        # Blok Kanan
+        if model_col_right and dp_col_right:
+            for r in range(8, ws.max_row + 1):
+                cm = ws.cell(r, model_col_right).value
+                if isinstance(cm, int) and cm < 1000:
+                    m_name = ws.cell(r + 2, model_col_right).value
+                    otr = ws.cell(r + 4, model_col_right).value
+                    if m_name and isinstance(m_name, str) and not m_name.strip().isdigit():
+                        model_name = m_name.strip()
+                        otr_val = otr if isinstance(otr, (int, float)) else 0
+                        sims = []
+                        # Membaca seluruh 15 baris DP
+                        for row_offset in range(15):
+                            cur_r = r + row_offset
+                            dp_val = ws.cell(cur_r, dp_col_right).value
+                            if dp_val and isinstance(dp_val, (int, float)):
+                                dp_rp = int(dp_val * 1000)
+                                for c, tenor in tenors_right.items():
+                                    cicilan = ws.cell(cur_r, c).value
+                                    if cicilan and isinstance(cicilan, (int, float)):
+                                        sims.append({
+                                            'dp': dp_rp,
+                                            'tenor': tenor,
+                                            'cicilan': int(cicilan * 1000)
+                                        })
+                        fif_data[model_name] = {'sheet': sname, 'otr': otr_val, 'sims': sims}
 
-    # Gather images for matched folder
-    folder = folder_map.get(sheet)
-    warna_list = []
-    if folder:
-        folder_path = os.path.join(foto_base, folder)
-        files = os.listdir(folder_path)
-        png_files = [f for f in files if f.lower().endswith('.png')]
-        chosen_files = png_files if png_files else files
-        for idx, fn in enumerate(chosen_files[:4]):
-            rel_path = f"assets/products/{folder}/{fn}".replace('\\', '/')
-            color_name = f"Varian {idx + 1}"
-            warna_list.append({
-                "nama": color_name,
-                "foto": rel_path
-            })
+    return fif_data
 
-    if not warna_list:
-        warna_list.append({
-            "nama": "Standar",
-            "foto": "assets/img/logo/logo.png"
-        })
-
-    name_clean = raw_name.replace('ALL NEW ', '').replace('ALL ', '')
-    desc = f"Honda {name_clean} hadir dengan performa responsif, efisiensi bahan bakar maksimal, dan fitur canggih masa kini. Sangat nyaman dan pas untuk kebutuhan berkendara Anda di Palabuhanratu dan sekitarnya."
-
-    products.append({
-        "id": re.sub(r'[^a-z0-9]+', '-', sheet.lower()).strip('-'),
-        "namaMotor": f"Honda {name_clean}",
-        "kategori": cat,
-        "hargaCashAsuransi": price_otr,
-        "deskripsiSingkat": desc,
-        "warna": warna_list,
-        "simulasiKredit": simulasi,
-        "sheet": sheet,
-        "folder": folder
-    })
-
-os.makedirs('data', exist_ok=True)
-with open('data/seed-products.json', 'w', encoding='utf-8') as f:
-    json.dump(products, f, indent=2, ensure_ascii=False)
-
-print(f"Generated data/seed-products.json with {len(products)} products!")
+if __name__ == '__main__':
+    data = parse_fif_pricelist()
+    print(f"Berhasil membaca {len(data)} model dari {EXCEL_PATH}:")
+    for name, info in list(data.items())[:10]:
+        dps = sorted(list(set(s['dp'] for s in info['sims'])))
+        print(f" - {name} ({info['sheet']}): {len(dps)} DP -> {dps[:3]} ... {dps[-2:]}")

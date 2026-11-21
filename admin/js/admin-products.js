@@ -949,53 +949,205 @@ function setupImportModalEvents() {
           const workbook = window.XLSX.read(data, { type: "array" });
 
           importedProducts = [];
+          const upperSheetNames = workbook.SheetNames.map(s => s.toUpperCase());
+          const isFifPricelist = upperSheetNames.some(s => ["CUB", "MATIC", "SPORT", "WING"].includes(s));
 
-          for (const sheetName of workbook.SheetNames) {
-            const sheet = workbook.Sheets[sheetName];
-            const jsonRows = window.XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          if (isFifPricelist) {
+            // Parser multi-blok PL FIF dengan 15 baris DP per model
+            const fifModels = {};
 
-            if (jsonRows.length < 5) continue;
+            for (const sheetName of workbook.SheetNames) {
+              const sheet = workbook.Sheets[sheetName];
+              const jsonRows = window.XLSX.utils.sheet_to_json(sheet, { header: 1 });
+              if (jsonRows.length < 10) continue;
 
-            const rawName = jsonRows[0] && jsonRows[0][2] ? String(jsonRows[0][2]).trim() : sheetName;
-            const cleanName = rawName || sheetName;
-            const price = jsonRows[1] && jsonRows[1][2] ? parseInt(jsonRows[1][2]) : 0;
-
-            // Tenor cols from row 4 (0-indexed)
-            const tenorCols = {};
-            const tenorRow = jsonRows[4] || [];
-            for (let c = 1; c < 10; c++) {
-              if (tenorRow[c] && !isNaN(tenorRow[c])) {
-                tenorCols[c] = parseInt(tenorRow[c]);
+              // Deteksi Tenor Kolom Kiri (baris ke-7, 0-indexed r=6)
+              const tenorsLeft = {};
+              for (let c = 3; c < 15; c++) {
+                const val = jsonRows[6] ? jsonRows[6][c] : null;
+                if (val && !isNaN(val) && Number(val) > 0) {
+                  tenorsLeft[c] = parseInt(val);
+                } else if (val && isNaN(val)) {
+                  break;
+                }
               }
-            }
 
-            // Simulasi from row 5
-            const simList = [];
-            for (let r = 5; r < jsonRows.length; r++) {
-              const rData = jsonRows[r];
-              if (!rData || !rData[0] || isNaN(rData[0]) || rData[0] < 100000) break;
-              const dp = parseInt(rData[0]);
+              // Deteksi Kolom Kanan (cari 'UANG MUKA' di r=5)
+              let dpColRight = null;
+              let modelColRight = null;
+              const tenorsRight = {};
+              const r5 = jsonRows[5] || [];
+              for (let c = 9; c < 22; c++) {
+                if (r5[c] && String(r5[c]).toUpperCase().includes("UANG")) {
+                  dpColRight = c;
+                  modelColRight = c - 2;
+                  for (let tc = c + 1; tc < 30; tc++) {
+                    const tv = jsonRows[6] ? jsonRows[6][tc] : null;
+                    if (tv && !isNaN(tv) && Number(tv) > 0) {
+                      tenorsRight[tc] = parseInt(tv);
+                    } else if (tv && isNaN(tv)) {
+                      break;
+                    }
+                  }
+                  break;
+                }
+              }
 
-              for (const [colIdx, tenor] of Object.entries(tenorCols)) {
-                const cicilan = parseInt(rData[colIdx]);
-                if (cicilan && !isNaN(cicilan)) {
-                  simList.push({ dp, tenor, cicilan });
+              // Parse Blok Kiri (modelCol=0, dpCol=2)
+              for (let r = 7; r < jsonRows.length; r++) {
+                const row = jsonRows[r] || [];
+                const v = row[0];
+                if (typeof v === "number" && v < 1000) {
+                  const nameRow = jsonRows[r + 2] || [];
+                  const otrRow = jsonRows[r + 4] || [];
+                  const mName = nameRow[0];
+                  const otr = typeof otrRow[0] === "number" ? otrRow[0] : 0;
+                  if (mName && typeof mName === "string" && isNaN(mName)) {
+                    const modelName = mName.trim();
+                    const sims = [];
+                    for (let offset = 0; offset < 15; offset++) {
+                      const curR = jsonRows[r + offset] || [];
+                      const dpVal = curR[2];
+                      if (dpVal && !isNaN(dpVal) && Number(dpVal) > 0) {
+                        const dpRp = parseInt(Number(dpVal) * 1000);
+                        for (const [colIdx, tenor] of Object.entries(tenorsLeft)) {
+                          const cicilan = curR[colIdx];
+                          if (cicilan && !isNaN(cicilan) && Number(cicilan) > 0) {
+                            sims.push({
+                              dp: dpRp,
+                              tenor: tenor,
+                              cicilan: parseInt(Number(cicilan) * 1000)
+                            });
+                          }
+                        }
+                      }
+                    }
+                    fifModels[modelName] = { sheet: sheetName, otr, sims };
+                  }
+                }
+              }
+
+              // Parse Blok Kanan
+              if (modelColRight !== null && dpColRight !== null) {
+                for (let r = 7; r < jsonRows.length; r++) {
+                  const row = jsonRows[r] || [];
+                  const v = row[modelColRight];
+                  if (typeof v === "number" && v < 1000) {
+                    const nameRow = jsonRows[r + 2] || [];
+                    const otrRow = jsonRows[r + 4] || [];
+                    const mName = nameRow[modelColRight];
+                    const otr = typeof otrRow[modelColRight] === "number" ? otrRow[modelColRight] : 0;
+                    if (mName && typeof mName === "string" && isNaN(mName)) {
+                      const modelName = mName.trim();
+                      const sims = [];
+                      for (let offset = 0; offset < 15; offset++) {
+                        const curR = jsonRows[r + offset] || [];
+                        const dpVal = curR[dpColRight];
+                        if (dpVal && !isNaN(dpVal) && Number(dpVal) > 0) {
+                          const dpRp = parseInt(Number(dpVal) * 1000);
+                          for (const [colIdx, tenor] of Object.entries(tenorsRight)) {
+                            const cicilan = curR[colIdx];
+                            if (cicilan && !isNaN(cicilan) && Number(cicilan) > 0) {
+                              sims.push({
+                                dp: dpRp,
+                                tenor: tenor,
+                                cicilan: parseInt(Number(cicilan) * 1000)
+                              });
+                            }
+                          }
+                        }
+                      }
+                      fifModels[modelName] = { sheet: sheetName, otr, sims };
+                    }
+                  }
                 }
               }
             }
 
-            // Categorize
-            const cat = getProductCategory({ namaMotor: sheetName, sheet: sheetName });
+            // Gabungkan simulasi FIF ke produk yang sudah ada di database / lokal
+            if (allProducts && allProducts.length > 0) {
+              importedProducts = allProducts.map(p => {
+                const pCopy = { ...p };
+                const cleanP = (p.namaMotor || "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+                const cleanF = (p.folder || "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 
-            importedProducts.push({
-              namaMotor: sheetName.trim(),
-              kategori: cat,
-              hargaCashAsuransi: price,
-              hargaOtr: price,
-              deskripsiSingkat: `Honda ${cleanName} pilihan terbaik di kelasnya. Desain modern, irit bahan bakar, dan bergaransi resmi Astra Honda Motor.`,
-              warna: [{ nama: "Standar", foto: "assets/img/logo/logo.png" }],
-              simulasiKredit: simList
-            });
+                const matchedKey = Object.keys(fifModels).find(k => {
+                  const cleanK = k.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+                  return cleanP.includes(cleanK) || cleanK.includes(cleanP) || cleanF.includes(cleanK) || cleanK.includes(cleanF);
+                });
+
+                if (matchedKey && fifModels[matchedKey].sims.length > 0) {
+                  pCopy.simulasiKreditFif = fifModels[matchedKey].sims;
+                  if (fifModels[matchedKey].otr > 0 && (!pCopy.hargaOtr || pCopy.hargaOtr === 0)) {
+                    pCopy.hargaOtr = fifModels[matchedKey].otr;
+                  }
+                  if (!pCopy.leasingOptions || !pCopy.leasingOptions.includes("FIF")) {
+                    pCopy.leasingOptions = [...(pCopy.leasingOptions || []), "FIF"];
+                  }
+                }
+                return pCopy;
+              });
+            } else {
+              // Jika database masih kosong, buat entri produk dari FIF
+              for (const [modelName, info] of Object.entries(fifModels)) {
+                const cat = getProductCategory({ namaMotor: modelName, sheet: info.sheet });
+                importedProducts.push({
+                  namaMotor: modelName,
+                  kategori: cat,
+                  hargaCashAsuransi: info.otr,
+                  hargaOtr: info.otr,
+                  deskripsiSingkat: `Honda ${modelName} pilihan terbaik di kelasnya. Desain modern, performa tangguh, dan bergaransi resmi Astra Honda Motor.`,
+                  warna: [{ nama: "Standar", foto: "assets/img/logo/logo.png" }],
+                  simulasiKreditFif: info.sims,
+                  simulasiKredit: info.sims,
+                  leasingOptions: ["FIF"]
+                });
+              }
+            }
+          } else {
+            // Format generic single sheet
+            for (const sheetName of workbook.SheetNames) {
+              const sheet = workbook.Sheets[sheetName];
+              const jsonRows = window.XLSX.utils.sheet_to_json(sheet, { header: 1 });
+              if (jsonRows.length < 5) continue;
+
+              const rawName = jsonRows[0] && jsonRows[0][2] ? String(jsonRows[0][2]).trim() : sheetName;
+              const cleanName = rawName || sheetName;
+              const price = jsonRows[1] && jsonRows[1][2] ? parseInt(jsonRows[1][2]) : 0;
+
+              const tenorCols = {};
+              const tenorRow = jsonRows[4] || [];
+              for (let c = 1; c < 10; c++) {
+                if (tenorRow[c] && !isNaN(tenorRow[c])) {
+                  tenorCols[c] = parseInt(tenorRow[c]);
+                }
+              }
+
+              const simList = [];
+              for (let r = 5; r < jsonRows.length; r++) {
+                const rData = jsonRows[r];
+                if (!rData || !rData[0] || isNaN(rData[0]) || rData[0] < 100000) break;
+                const dp = parseInt(rData[0]);
+
+                for (const [colIdx, tenor] of Object.entries(tenorCols)) {
+                  const cicilan = parseInt(rData[colIdx]);
+                  if (cicilan && !isNaN(cicilan)) {
+                    simList.push({ dp, tenor, cicilan });
+                  }
+                }
+              }
+
+              const cat = getProductCategory({ namaMotor: sheetName, sheet: sheetName });
+              importedProducts.push({
+                namaMotor: sheetName.trim(),
+                kategori: cat,
+                hargaCashAsuransi: price,
+                hargaOtr: price,
+                deskripsiSingkat: `Honda ${cleanName} pilihan terbaik di kelasnya. Desain modern, irit bahan bakar, dan bergaransi resmi Astra Honda Motor.`,
+                warna: [{ nama: "Standar", foto: "assets/img/logo/logo.png" }],
+                simulasiKredit: simList
+              });
+            }
           }
         } else {
           throw new Error("Format file tidak didukung! Harap upload .json atau .xls / .xlsx");
