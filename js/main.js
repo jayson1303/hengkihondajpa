@@ -93,6 +93,26 @@ async function loadSettings() {
       hero: { ...(defaults.hero || {}), ...(heroSnap.exists() ? heroSnap.data() : {}) },
       about: { ...(defaults.about || {}), ...(aboutSnap.exists() ? aboutSnap.data() : {}) }
     };
+
+    // Sinkronisasi cadangan promo lokal jika ada update dari admin
+    try {
+      const cachedPromo = localStorage.getItem("admin_promo_slots");
+      if (cachedPromo) {
+        const parsed = JSON.parse(cachedPromo);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          settings.hero.promoList = parsed;
+        }
+      }
+    } catch (e) {}
+
+    // Sinkronisasi cadangan kontak lokal
+    try {
+      const cachedContact = localStorage.getItem("admin_contact_settings");
+      if (cachedContact) {
+        settings.contact = { ...(settings.contact || {}), ...JSON.parse(cachedContact) };
+      }
+    } catch (e) {}
+
     if (!settings.hero.backgroundUrl) settings.hero.backgroundUrl = defaults.hero?.backgroundUrl || "";
     if (!settings.hero.promoImageUrl) settings.hero.promoImageUrl = defaults.hero?.promoImageUrl || "";
 
@@ -108,6 +128,20 @@ async function loadSettings() {
     console.warn("Firestore settings load failed, using fallback:", err);
     try {
       appSettings = defaults;
+      try {
+        const cachedPromo = localStorage.getItem("admin_promo_slots");
+        if (cachedPromo) {
+          const parsed = JSON.parse(cachedPromo);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            appSettings.hero = { ...(appSettings.hero || {}), promoList: parsed };
+          }
+        }
+        const cachedContact = localStorage.getItem("admin_contact_settings");
+        if (cachedContact) {
+          appSettings.contact = { ...(appSettings.contact || {}), ...JSON.parse(cachedContact) };
+        }
+      } catch (e) {}
+
       renderHero(appSettings.hero || {});
       renderAbout(appSettings.about);
       renderContact(appSettings.contact);
@@ -682,7 +716,7 @@ function renderContact(contact) {
 
   if (igEl && contact.instagram) igEl.href = contact.instagram;
   if (tiktokEl && contact.tiktok) tiktokEl.href = contact.tiktok;
-  if (fbEl && contact.facebook) fbEl.href = contact.facebook;
+  if (fbEl) fbEl.href = contact.facebook || "https://www.facebook.com/share/1ER88rzYvK/";
 }
 
 // ==========================================================================

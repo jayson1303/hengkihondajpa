@@ -1,6 +1,7 @@
 // ==========================================================================
 // HENGKI HONDA JPA
-// admin-promo.js - Kelola 5 Slot Banner Promo Hero (Auto-Crop WebP, Urutan & Hapus)
+// admin-promo.js - Kelola 5 Slot Banner Promo Hero (Auto-Crop WebP, Urutan & Simpan)
+// Mendukung penyimpanan individual per-slot, batch, serta LocalStorage & Cloud
 // ==========================================================================
 
 import { 
@@ -30,46 +31,80 @@ let promoSlots = [];
 
 export async function initAdminPromo() {
   const container = document.getElementById("promo-slots-container");
-  const btnSave = document.getElementById("btn-save-promo-slots");
+  const btnSaveTop = document.getElementById("btn-save-promo-slots");
+  const btnSaveBottom = document.getElementById("btn-save-promo-slots-bottom");
+
   if (!container) return;
 
   await loadPromoSlots();
   renderPromoSlots();
 
-  if (btnSave) {
-    btnSave.addEventListener("click", savePromoSlots);
+  if (btnSaveTop) {
+    btnSaveTop.addEventListener("click", () => savePromoSlots());
+  }
+
+  if (btnSaveBottom) {
+    btnSaveBottom.addEventListener("click", () => savePromoSlots());
   }
 }
 
 async function loadPromoSlots() {
-  try {
-    let snap;
-    try {
-      snap = await getDocFromServer(doc(db, "hero", "main"));
-    } catch (e) {
-      snap = await getDoc(doc(db, "hero", "main"));
-    }
+  let loaded = false;
 
-    if (snap.exists() && Array.isArray(snap.data().promoList) && snap.data().promoList.length > 0) {
-      promoSlots = snap.data().promoList.slice(0, 5);
-    } else {
-      // Coba load dari default-settings.json
+  // 1. Coba baca dari Firestore cloud
+  if (db) {
+    try {
+      let snap;
       try {
-        const res = await fetch("../data/default-settings.json");
-        const json = await res.json();
-        if (json.hero && Array.isArray(json.hero.promoList)) {
-          promoSlots = json.hero.promoList.slice(0, 5);
-        }
-      } catch (err) {}
+        snap = await getDocFromServer(doc(db, "hero", "main"));
+      } catch (e) {
+        snap = await getDoc(doc(db, "hero", "main"));
+      }
+
+      if (snap && snap.exists() && Array.isArray(snap.data().promoList) && snap.data().promoList.length > 0) {
+        promoSlots = snap.data().promoList.slice(0, 5);
+        loaded = true;
+      }
+    } catch (err) {
+      console.warn("Gagal memuat promoList dari Firestore:", err);
     }
-  } catch (err) {
-    console.warn("Gagal memuat promoList dari Firestore:", err);
   }
 
-  // Pastikan tepat 5 slot tersedia
+  // 2. Coba baca dari LocalStorage cache admin jika Firestore belum ada / offline
+  if (!loaded) {
+    try {
+      const stored = localStorage.getItem("admin_promo_slots");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          promoSlots = parsed.slice(0, 5);
+          loaded = true;
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 3. Fallback ke data/default-settings.json jika masih belum ada
+  if (!loaded) {
+    try {
+      const res = await fetch("../data/default-settings.json");
+      const json = await res.json();
+      if (json.hero && Array.isArray(json.hero.promoList)) {
+        promoSlots = json.hero.promoList.slice(0, 5);
+        loaded = true;
+      }
+    } catch (err) {}
+  }
+
+  // 4. Pastikan tepat 5 slot tersedia
   while (promoSlots.length < 5) {
     const idx = promoSlots.length + 1;
-    const fallbackDef = DEFAULT_PROMOS[idx - 1] || { id: `promo-${idx}`, url: `promo/promo-${idx}.webp`, alt: `Promo Honda ${idx}`, active: true };
+    const fallbackDef = DEFAULT_PROMOS[idx - 1] || { 
+      id: `promo-${idx}`, 
+      url: `promo/promo-${idx}.webp`, 
+      alt: `Promo Honda ${idx}`, 
+      active: true 
+    };
     promoSlots.push({ ...fallbackDef });
   }
 }
@@ -86,14 +121,15 @@ function renderPromoSlots() {
     slotCard.dataset.index = index;
 
     const displayUrl = slot.url ? formatAdminImageUrl(slot.url) : "../assets/img/logo/logo.png";
-    const isActive = slot.active !== false;
+    const isActive = slot.active !== false && Boolean(slot.url);
+    const needsSave = Boolean(slot._needsSave);
 
     slotCard.innerHTML = `
       <div class="promo-slot-header">
         <div class="promo-slot-title">
           <span class="promo-slot-number">Slot #${index + 1}</span>
-          <span class="promo-status-pill ${isActive && slot.url ? 'active' : 'inactive'}">
-            ${isActive && slot.url ? '● Aktif Tampil' : '○ Kosong / Nonaktif'}
+          <span class="promo-status-pill ${isActive ? 'active' : 'inactive'}">
+            ${isActive ? '● Aktif Tampil' : '○ Kosong / Nonaktif'}
           </span>
         </div>
         <div class="promo-slot-actions">
@@ -118,14 +154,23 @@ function renderPromoSlots() {
 
       <div class="promo-warning-box" id="promo-warn-${index}" style="display: none;"></div>
 
+      <!-- KONTROL LENGKAP TIAP KARTU: TOMBOL PILIH FOTO, KOSONGKAN & TOMBOL SIMPAN SLOT -->
       <div class="promo-slot-controls">
-        <label class="btn-admin-action btn-outline-action btn-upload-slot" for="file-promo-slot-${index}">
-          <i class="fa-solid fa-cloud-arrow-up"></i> ${slot.url ? 'Ganti Foto' : 'Pilih Foto'}
-        </label>
-        <input type="file" id="file-promo-slot-${index}" class="input-promo-file" data-index="${index}" accept="image/*" style="display: none;">
+        <div class="promo-slot-controls-row">
+          <label class="btn-admin-action btn-outline-action btn-upload-slot" for="file-promo-slot-${index}">
+            <i class="fa-solid fa-cloud-arrow-up"></i> ${slot.url ? 'Ganti Foto' : 'Pilih Foto'}
+          </label>
+          <input type="file" id="file-promo-slot-${index}" class="input-promo-file" data-index="${index}" accept="image/*" style="display: none;">
 
-        <button type="button" class="btn-admin-action btn-danger-action btn-delete-slot" data-index="${index}" title="Hapus foto dari slot ini">
-          <i class="fa-solid fa-trash-can"></i> Hapus
+          <button type="button" class="btn-admin-action btn-danger-action btn-delete-slot" data-index="${index}" title="Kosongkan foto dari slot ini">
+            <i class="fa-solid fa-trash-can"></i> Kosongkan
+          </button>
+        </div>
+
+        <!-- Tombol Simpan Eksplisit untuk Slot Ini -->
+        <button type="button" class="btn-save-slot ${needsSave ? 'needs-save' : ''}" data-index="${index}" id="btn-save-slot-${index}">
+          <i class="fa-solid ${needsSave ? 'fa-triangle-exclamation' : 'fa-floppy-disk'}"></i> 
+          ${needsSave ? `Simpan Foto Baru Slot #${index + 1}` : `Simpan Slot #${index + 1}`}
         </button>
       </div>
     `;
@@ -148,6 +193,8 @@ function setupSlotEvents() {
         const temp = promoSlots[idx];
         promoSlots[idx] = promoSlots[idx - 1];
         promoSlots[idx - 1] = temp;
+        promoSlots[idx]._needsSave = true;
+        promoSlots[idx - 1]._needsSave = true;
         renderPromoSlots();
       }
     });
@@ -161,6 +208,8 @@ function setupSlotEvents() {
         const temp = promoSlots[idx];
         promoSlots[idx] = promoSlots[idx + 1];
         promoSlots[idx + 1] = temp;
+        promoSlots[idx]._needsSave = true;
+        promoSlots[idx + 1]._needsSave = true;
         renderPromoSlots();
       }
     });
@@ -181,7 +230,8 @@ function setupSlotEvents() {
         promoSlots[idx].active = false;
         promoSlots[idx]._file = null;
         promoSlots[idx]._dataUrl = null;
-        renderPromoSlots();
+        promoSlots[idx]._needsSave = true;
+        await saveSingleSlot(idx, true);
       }
     });
   });
@@ -196,6 +246,7 @@ function setupSlotEvents() {
       const previewImg = document.getElementById(`promo-preview-${idx}`);
       const warnBox = document.getElementById(`promo-warn-${idx}`);
       const metaBox = document.getElementById(`promo-meta-${idx}`);
+      const saveBtn = document.getElementById(`btn-save-slot-${idx}`);
 
       if (previewImg) previewImg.style.opacity = "0.5";
 
@@ -211,6 +262,7 @@ function setupSlotEvents() {
         promoSlots[idx]._dataUrl = processed.dataUrl;
         promoSlots[idx].url = processed.dataUrl; // Preview live
         promoSlots[idx].active = true;
+        promoSlots[idx]._needsSave = true;
 
         if (previewImg) {
           previewImg.src = processed.dataUrl;
@@ -221,12 +273,12 @@ function setupSlotEvents() {
         if (metaBox) {
           const kbSize = Math.round(processed.size / 1024);
           metaBox.innerHTML = `
-            <span class="promo-dim-badge"><i class="fa-solid fa-check"></i> 900×1260 px</span>
+            <span class="promo-dim-badge" style="color: #047857;"><i class="fa-solid fa-check"></i> 900×1260 px</span>
             <span class="promo-format-badge">WebP (~${kbSize} KB)</span>
           `;
         }
 
-        // Tampilkan warning jika gambar asli terlalu kecil
+        // Tampilkan warning jika resolusi gambar asli terlalu kecil
         if (warnBox) {
           if (processed.isLowRes) {
             warnBox.textContent = `⚠️ ${processed.warningMessage}`;
@@ -236,6 +288,15 @@ function setupSlotEvents() {
           }
         }
 
+        // Update tombol simpan slot
+        if (saveBtn) {
+          saveBtn.classList.add("needs-save");
+          saveBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Simpan Slot #${idx + 1} (Klik di Sini!)`;
+        }
+
+        // Otomatis simpan langsung slot ini agar tidak perlu bingung mencari tombol
+        await saveSingleSlot(idx, false);
+
       } catch (err) {
         console.error("Gagal memproses gambar promo:", err);
         await adminAlert("Gagal memproses gambar: " + err.message, "Format Tidak Valid", "error");
@@ -243,24 +304,133 @@ function setupSlotEvents() {
       }
     });
   });
+
+  // 5. Save Single Slot Button Click
+  container.querySelectorAll(".btn-save-slot").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const idx = parseInt(btn.dataset.index, 10);
+      await saveSingleSlot(idx, true);
+    });
+  });
 }
 
-async function savePromoSlots() {
-  const btnSave = document.getElementById("btn-save-promo-slots");
-  if (btnSave) {
-    btnSave.disabled = true;
-    btnSave.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan Promo...';
+/**
+ * Simpan satu slot promo tertentu secara langsung
+ */
+async function saveSingleSlot(idx, showModal = true) {
+  const saveBtn = document.getElementById(`btn-save-slot-${idx}`);
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan Slot #${idx + 1}...`;
   }
 
   try {
+    const slot = promoSlots[idx];
+    let finalUrl = slot.url;
+
+    // Jika ada file gambar baru yang diunggah
+    if (slot._file) {
+      try {
+        const path = `promo/promo-${idx + 1}-${Date.now()}.webp`;
+        finalUrl = await uploadWithFallback(slot._file, path, {
+          maxWidth: 900,
+          maxHeight: 1260,
+          quality: 0.90
+        });
+      } catch (upErr) {
+        console.warn(`Gagal upload storage slot #${idx + 1}, memakai dataURL:`, upErr);
+        finalUrl = slot._dataUrl || slot.url;
+      }
+    }
+
+    slot.url = finalUrl || "";
+    slot.active = Boolean(finalUrl);
+    slot._file = null;
+    slot._dataUrl = null;
+    slot._needsSave = false;
+
+    // Bersihkan objek slots untuk disimpan (tanpa properti internal blob)
+    const cleanSlots = getCleanSlots();
     const updatedTimestamp = new Date().toISOString();
-    const finalSlots = [];
+
+    // 1. Simpan ke LocalStorage selalu (agar instan dan aman offline)
+    try {
+      localStorage.setItem("admin_promo_slots", JSON.stringify(cleanSlots));
+      const cachedHero = JSON.parse(localStorage.getItem("asm_hero_cache") || "{}");
+      cachedHero.promoList = cleanSlots;
+      cachedHero.updatedAt = updatedTimestamp;
+      localStorage.setItem("asm_hero_cache", JSON.stringify(cachedHero));
+    } catch (e) {
+      console.warn("Gagal simpan promo ke LocalStorage:", e);
+    }
+
+    // 2. Simpan ke Firestore jika tersedia
+    if (db) {
+      try {
+        await setDoc(doc(db, "hero", "main"), {
+          promoList: cleanSlots,
+          promoImageUrl: cleanSlots[0]?.url || "",
+          updatedAt: updatedTimestamp
+        }, { merge: true });
+
+        await setDoc(doc(db, "settings", "promo"), {
+          slots: cleanSlots,
+          updatedAt: updatedTimestamp
+        }, { merge: true });
+      } catch (fsErr) {
+        console.warn("Firestore setDoc hero gagal (data tetap tersimpan di lokal):", fsErr);
+      }
+    }
+
+    renderPromoSlots();
+
+    if (showModal) {
+      await adminAlert(
+        `Slot Promo #${idx + 1} berhasil disimpan! Foto terbaru langsung aktif tampil pada kartu melayang di beranda.`,
+        "Slot Berhasil Disimpan",
+        "success"
+      );
+    }
+
+  } catch (err) {
+    console.error("Gagal simpan slot promo:", err);
+    if (showModal) {
+      await adminAlert("Gagal menyimpan slot: " + err.message, "Gagal", "error");
+    }
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+    }
+  }
+}
+
+/**
+ * Simpan semua 5 slot banner promo sekaligus
+ */
+async function savePromoSlots() {
+  const btnSaveTop = document.getElementById("btn-save-promo-slots");
+  const btnSaveBottom = document.getElementById("btn-save-promo-slots-bottom");
+
+  const setButtonsLoading = (isLoading) => {
+    [btnSaveTop, btnSaveBottom].forEach(btn => {
+      if (btn) {
+        btn.disabled = isLoading;
+        btn.innerHTML = isLoading 
+          ? '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan Semua...' 
+          : '<i class="fa-solid fa-floppy-disk"></i> Simpan Semua 5 Banner Promo';
+      }
+    });
+  };
+
+  setButtonsLoading(true);
+
+  try {
+    const updatedTimestamp = new Date().toISOString();
 
     for (let i = 0; i < promoSlots.length; i++) {
       const slot = promoSlots[i];
       let finalUrl = slot.url;
 
-      // Jika ada file gambar baru yang diunggah, simpan via Storage atau Base64 fallback
       if (slot._file) {
         try {
           const path = `promo/promo-${i + 1}-${Date.now()}.webp`;
@@ -275,34 +445,49 @@ async function savePromoSlots() {
         }
       }
 
-      finalSlots.push({
-        id: `promo-${i + 1}`,
-        url: finalUrl || "",
-        alt: `Promo Honda ${i + 1}`,
-        active: Boolean(finalUrl)
-      });
+      slot.url = finalUrl || "";
+      slot.active = Boolean(finalUrl);
+      slot._file = null;
+      slot._dataUrl = null;
+      slot._needsSave = false;
     }
 
-    // Simpan ke Firestore document 'hero/main'
-    await setDoc(doc(db, "hero", "main"), {
-      promoList: finalSlots,
-      promoImageUrl: finalSlots[0]?.url || "",
-      updatedAt: updatedTimestamp
-    }, { merge: true });
+    const cleanSlots = getCleanSlots();
 
-    // Simpan juga ke koleksi settings/promo untuk referensi cadangan
-    await setDoc(doc(db, "settings", "promo"), {
-      slots: finalSlots,
-      updatedAt: updatedTimestamp
-    }, { merge: true });
+    // 1. Simpan ke LocalStorage
+    try {
+      localStorage.setItem("admin_promo_slots", JSON.stringify(cleanSlots));
+      const cachedHero = JSON.parse(localStorage.getItem("asm_hero_cache") || "{}");
+      cachedHero.promoList = cleanSlots;
+      cachedHero.updatedAt = updatedTimestamp;
+      localStorage.setItem("asm_hero_cache", JSON.stringify(cachedHero));
+    } catch (e) {
+      console.warn("Gagal simpan promo ke LocalStorage:", e);
+    }
 
-    // Update state & re-render
-    promoSlots = finalSlots;
+    // 2. Simpan ke Firestore
+    if (db) {
+      try {
+        await setDoc(doc(db, "hero", "main"), {
+          promoList: cleanSlots,
+          promoImageUrl: cleanSlots[0]?.url || "",
+          updatedAt: updatedTimestamp
+        }, { merge: true });
+
+        await setDoc(doc(db, "settings", "promo"), {
+          slots: cleanSlots,
+          updatedAt: updatedTimestamp
+        }, { merge: true });
+      } catch (fsErr) {
+        console.warn("Firestore save failed, fallback to local:", fsErr);
+      }
+    }
+
     renderPromoSlots();
 
     await adminAlert(
-      "Berhasil menyimpan 5 foto promo! Foto terbaru akan langsung tampil di kartu melayang beranda tanpa cache lama saat halaman dimuat.",
-      "Promo Disimpan",
+      "Berhasil menyimpan seluruh 5 Banner Promo! Foto promo terbaru langsung aktif ditampilkan di beranda.",
+      "Semua Promo Disimpan",
       "success"
     );
 
@@ -310,9 +495,15 @@ async function savePromoSlots() {
     console.error("Gagal menyimpan banner promo:", err);
     await adminAlert("Gagal menyimpan promo: " + err.message, "Simpan Gagal", "error");
   } finally {
-    if (btnSave) {
-      btnSave.disabled = false;
-      btnSave.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Semua Banner Promo';
-    }
+    setButtonsLoading(false);
   }
+}
+
+function getCleanSlots() {
+  return promoSlots.map((s, idx) => ({
+    id: `promo-${idx + 1}`,
+    url: s.url || "",
+    alt: s.alt || `Promo Honda ${idx + 1}`,
+    active: Boolean(s.url)
+  }));
 }

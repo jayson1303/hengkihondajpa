@@ -1121,10 +1121,16 @@ body {
 }
 
 .promo-slot-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.promo-slot-controls-row {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 8px;
-  margin-top: auto;
 }
 
 .btn-upload-slot {
@@ -1140,4 +1146,37 @@ body {
 .btn-delete-slot {
   padding: 8px 12px;
   font-size: 0.8rem;
+}
+
+.btn-save-slot {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 8px 12px;
+  background: #059669;
+  color: #FFFFFF;
+  border: 1px solid #047857;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-save-slot:hover {
+  background: #047857;
+}
+
+.btn-save-slot.needs-save {
+  background: #DC2626;
+  border-color: #B91C1C;
+  animation: pulseSavePromo 1.5s infinite;
+}
+
+@keyframes pulseSavePromo {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  70% { transform: scale(1.02); box-shadow: 0 0 0 6px rgba(220, 38, 38, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
 }

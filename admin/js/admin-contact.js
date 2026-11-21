@@ -47,7 +47,7 @@ async function loadContactAndTemplateData() {
     document.getElementById("contact-input-wa-link").value = contactData.whatsappLink || "https://wa.me/6281313133505";
     document.getElementById("contact-input-ig").value = contactData.instagram || "";
     document.getElementById("contact-input-tiktok").value = contactData.tiktok || "";
-    document.getElementById("contact-input-fb").value = contactData.facebook || "";
+    document.getElementById("contact-input-fb").value = contactData.facebook || "https://www.facebook.com/share/1ER88rzYvK/";
     document.getElementById("contact-input-maps").value = contactData.googleMapsEmbed || "";
 
     // 2. WA Template
@@ -100,7 +100,13 @@ async function handleSaveContact(e) {
       updatedAt: new Date().toISOString()
     };
 
-    await setDoc(doc(db, "settings", "contact"), payload, { merge: true });
+    try {
+      localStorage.setItem("admin_contact_settings", JSON.stringify(payload));
+    } catch (e) {}
+
+    if (db) {
+      await setDoc(doc(db, "settings", "contact"), payload, { merge: true });
+    }
     await adminAlert("Informasi Kontak & Sosial Media berhasil disimpan!", "Berhasil Disimpan", "success");
 
   } catch (err) {
