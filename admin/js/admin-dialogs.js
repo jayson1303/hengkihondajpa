@@ -1,5 +1,5 @@
 // ==========================================================================
-// APAI SELAMAT MOTOR PALABUHANRATU
+// HENGKI HONDA JPA
 // admin-dialogs.js - Custom Modals for Alert, Confirm, Prompt & Generators
 // ==========================================================================
 

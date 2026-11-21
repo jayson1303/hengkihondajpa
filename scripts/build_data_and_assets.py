@@ -19,61 +19,61 @@ print("Directories verified.")
 
 # 2. Process Logo
 logo_src = 'logo/WhatsApp Image 2026-11-20 at 09.37.33.jpeg'
-if os.path.exists(logo_src):
-    im_logo = Image.open(logo_src)
-    im_logo.convert('RGB').save('assets/img/logo/logo.jpg', quality=95)
-    im_logo.convert('RGBA').save('assets/img/logo/logo.png')
-    
-    # Generate transparent version: make near-white background transparent
-    rgba = im_logo.convert('RGBA')
-    datas = rgba.getdata()
-    new_data = []
-    for item in datas:
-        if item[0] > 240 and item[1] > 240 and item[2] > 240:
-            new_data.append((255, 255, 255, 0))
-        else:
-            new_data.append(item)
-    rgba.putdata(new_data)
-    rgba.save('assets/img/logo/logo-transparent.png', 'PNG')
-    print("Processed and saved main logo to assets/img/logo/")
+if os.path.exists(logo_src) and not os.path.exists('assets/img/logo/logo.jpg'):
+    try:
+        im_logo = Image.open(logo_src)
+        im_logo.convert('RGB').save('assets/img/logo/logo.jpg', quality=95)
+        im_logo.convert('RGBA').save('assets/img/logo/logo.png')
+        
+        # Generate transparent version: make near-white background transparent
+        rgba = im_logo.convert('RGBA')
+        datas = rgba.getdata()
+        new_data = []
+        for item in datas:
+            if item[0] > 240 and item[1] > 240 and item[2] > 240:
+                new_data.append((255, 255, 255, 0))
+            else:
+                new_data.append(item)
+        rgba.putdata(new_data)
+        rgba.save('assets/img/logo/logo-transparent.png', 'PNG')
+        print("Processed and saved main logo to assets/img/logo/")
+    except Exception as e:
+        print(f"Skipped logo processing: {e}")
 
 # 3. Process Leasing Logos (FIF & OTO)
 fif_logo_src = 'Price List/PL FIF + Logo/Logo.jpeg'
-if os.path.exists(fif_logo_src):
+if os.path.exists(fif_logo_src) and not os.path.exists('assets/img/logo/fif-logo.png'):
     im_fif = Image.open(fif_logo_src)
     im_fif.convert('RGB').save('assets/img/logo/fif-logo.jpg', quality=95)
     rgba_fif = im_fif.convert('RGBA')
-    datas_fif = rgba_fif.getdata()
-    new_fif = []
-    for item in datas_fif:
-        if item[0] > 240 and item[1] > 240 and item[2] > 240:
-            new_fif.append((255, 255, 255, 0))
-        else:
-            new_fif.append(item)
-    rgba_fif.putdata(new_fif)
+    pix = rgba_fif.load()
+    w, h = rgba_fif.size
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = pix[x, y]
+            if r > 240 and g > 240 and b > 240:
+                pix[x, y] = (255, 255, 255, 0)
     rgba_fif.save('assets/img/logo/fif-logo.png', 'PNG')
     print("Processed FIF logo.")
 
 oto_logo_src = 'Price List/PL OTO + Logo/Logo.jpeg'
-if os.path.exists(oto_logo_src):
+if os.path.exists(oto_logo_src) and not os.path.exists('assets/img/logo/oto-logo.png'):
     im_oto = Image.open(oto_logo_src)
     im_oto.convert('RGB').save('assets/img/logo/oto-logo.jpg', quality=95)
     rgba_oto = im_oto.convert('RGBA')
-    datas_oto = rgba_oto.getdata()
-    new_oto = []
-    for item in datas_oto:
-        if item[0] > 240 and item[1] > 240 and item[2] > 240:
-            new_oto.append((255, 255, 255, 0))
-        else:
-            new_oto.append(item)
-    rgba_oto.putdata(new_oto)
+    pix = rgba_oto.load()
+    w, h = rgba_oto.size
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = pix[x, y]
+            if r > 240 and g > 240 and b > 240:
+                pix[x, y] = (255, 255, 255, 0)
     rgba_oto.save('assets/img/logo/oto-logo.png', 'PNG')
     print("Processed OTO logo.")
 
 # 4. Hero Background
 hero_bg_src = 'Background Index/Gemini_Generated_Image_a61tc1a61tc1a61t.jpg'
 if not os.path.exists(hero_bg_src):
-    # fallback check any image in Background Index
     bg_files = [os.path.join('Background Index', f) for f in os.listdir('Background Index') if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
     if bg_files:
         hero_bg_src = bg_files[0]
@@ -82,18 +82,25 @@ if os.path.exists(hero_bg_src):
     shutil.copy2(hero_bg_src, 'assets/img/hero/hero-bg.jpg')
     print(f"Copied hero background ({hero_bg_src}) to assets/img/hero/hero-bg.jpg")
 
-# 5. Promo Banners
+# 5. Promo Banners (5 Slots, WebP & JPEG)
 promo_1 = 'Program atau Promo/WhatsApp Image 2026-11-20 at 09.37.34 (1).jpeg'
 promo_2 = 'Program atau Promo/WhatsApp Image 2026-11-20 at 09.37.34 (2).jpeg'
+promo_3 = 'promo/promo-3.jpeg' if os.path.exists('promo/promo-3.jpeg') else promo_2
 
-if os.path.exists(promo_1):
-    shutil.copy2(promo_1, 'promo/promo-1.jpg')
-    shutil.copy2(promo_1, 'assets/img/hero/promo-banner.jpg')
-    print("Copied promo 1.")
-if os.path.exists(promo_2):
-    shutil.copy2(promo_2, 'promo/promo-2.jpg')
-    shutil.copy2(promo_2, 'promo/promo-3.jpg')
-    print("Copied promo 2 and 3.")
+promo_sources = [promo_1, promo_2, promo_3, promo_1, promo_2]
+for i in range(1, 6):
+    src = promo_sources[i-1]
+    if os.path.exists(src):
+        try:
+            im_promo = Image.open(src).convert('RGB')
+            im_promo.save(f'promo/promo-{i}.jpg', 'JPEG', quality=92)
+            im_promo.save(f'promo/promo-{i}.webp', 'WEBP', quality=88)
+        except Exception as e:
+            print(f"Error converting promo-{i}: {e}")
+
+if os.path.exists('promo/promo-1.jpg'):
+    shutil.copy2('promo/promo-1.jpg', 'assets/img/hero/promo-banner.jpg')
+print("Processed and saved 5 promo slots in JPEG & WebP.")
 
 # 6. About Us Image
 about_src = 'tentang kami/Gemini_Generated_Image_7h0r6l7h0r6l7h0r.jpg'
@@ -230,73 +237,77 @@ for r in range(4, ws_oto.max_row+1):
 
 print(f"Parsed {len(oto_data)} distinct models from OTO!")
 
-# 11. Map all 46 Product Folders to FIF and OTO models accurately
+# 11. Accurate Mapping from Product Folders to exact PL models
+# Format: folder -> (fif_key, oto_key, exact_pl_display_name, category)
+# Nama model persis sama dengan Price List (huruf besar/kecil, singkatan CBS/ISS/Street/Sporty sesuai PL)
 folder_mapping = {
-    # Beat Series
-    'ALL BEAT CBS': ('BEAT SPORTY CBS', 'BEAT SPORTY CBS', 'Honda BeAT Sporty CBS', 'Beat Series'),
-    'ALL BEAT ISS': ('BEAT SPORTY CBS ISS ACC', 'BEAT SPORTY CBS ISS ACC', 'Honda BeAT Sporty Deluxe', 'Beat Series'),
-    'ALL BEAT STREET': ('BEAT STREET ACC', 'BEAT STREET ACC', 'Honda BeAT Street', 'Beat Series'),
-    'ALL NEW BEAT CBS': ('BEAT SPORTY CBS', 'BEAT SPORTY CBS', 'Honda All New BeAT CBS', 'Beat Series'),
-    'ALL NEW BEAT ISS': ('BEAT SPORTY CBS ISS ACC', 'BEAT SPORTY CBS ISS ACC', 'Honda All New BeAT Deluxe (ISS)', 'Beat Series'),
-    'ALL NEW BEAT SMARTKEY': ('BEAT SPORTY DELUXE SMART KEY ACC', 'BEAT SPORTY DELUXE SMART KEY ACC', 'Honda All New BeAT Smart Key', 'Beat Series'),
-    'ALL NEW BEAT STREET': ('BEAT STREET ACC', 'BEAT STREET ACC', 'Honda All New BeAT Street', 'Beat Series'),
-    
+    # Beat Series (4 varian resmi di PL)
+    # Foto All New (generasi terbaru)
+    'ALL NEW BEAT CBS': ('BEAT SPORTY CBS', 'BEAT SPORTY CBS', 'BEAT SPORTY CBS', 'Beat Series'),
+    'ALL NEW BEAT ISS': ('BEAT SPORTY CBS ISS ACC', 'BEAT SPORTY CBS ISS ACC', 'BEAT SPORTY CBS ISS ACC', 'Beat Series'),
+    'ALL NEW BEAT SMARTKEY': ('BEAT SPORTY DELUXE SMART KEY ACC', 'BEAT SPORTY DELUXE SMART KEY ACC', 'BEAT SPORTY DELUXE SMART KEY ACC', 'Beat Series'),
+    'ALL NEW BEAT STREET': ('BEAT STREET ACC', 'BEAT STREET ACC', 'BEAT STREET ACC', 'Beat Series'),
+    # Foto All Beat (cutout / varian reguler pendamping)
+    'ALL BEAT CBS': ('BEAT SPORTY CBS', 'BEAT SPORTY CBS', 'BEAT SPORTY CBS (Sporty)', 'Beat Series'),
+    'ALL BEAT ISS': ('BEAT SPORTY CBS ISS ACC', 'BEAT SPORTY CBS ISS ACC', 'BEAT SPORTY CBS ISS ACC (Deluxe)', 'Beat Series'),
+    'ALL BEAT STREET': ('BEAT STREET ACC', 'BEAT STREET ACC', 'BEAT STREET ACC (Street)', 'Beat Series'),
+
     # Genio Series
-    'ALL NEW GENIO CBS': ('GENIO CBS', 'Genio CBS (BK)', 'Honda Genio CBS', 'Genio Series'),
-    'ALL NEW GENIO CBS SP': ('Genio CBS (PH,PD)', 'Genio CBS (PH,PD)', 'Honda Genio CBS Special', 'Genio Series'),
-    'ALL NEW GENIO CBS ISS': ('Genio CBS ISS', 'Genio CBS ISS', 'Honda Genio CBS-ISS', 'Genio Series'),
-    
+    'ALL NEW GENIO CBS': ('GENIO CBS', 'Genio CBS (BK)', 'GENIO CBS', 'Genio Series'),
+    'ALL NEW GENIO CBS SP': ('Genio CBS (PH,PD)', 'Genio CBS (PH,PD)', 'Genio CBS (PH,PD)', 'Genio Series'),
+    'ALL NEW GENIO CBS ISS': ('Genio CBS ISS', 'Genio CBS ISS', 'Genio CBS ISS', 'Genio Series'),
+
     # Scoopy Series
-    'ALL NEW SCOOPY FASHION': ('Scoopy Fashion ACC', 'Scoopy Fashion ACC', 'Honda All New Scoopy Fashion', 'Scoopy Series'),
-    'ALL NEW SCOOPY PRESTIGE': ('Scoopy Prestige ACC / Scoopy Stylish ACC', 'Scoopy Prestige ACC / Scoopy Stylish ACC', 'Honda All New Scoopy Prestige', 'Scoopy Series'),
-    'ALL NEW SCOOPY STYLISH': ('Scoopy Prestige ACC / Scoopy Stylish ACC', 'Scoopy Prestige ACC / Scoopy Stylish ACC', 'Honda All New Scoopy Stylish', 'Scoopy Series'),
-    
+    'ALL NEW SCOOPY FASHION': ('Scoopy Fashion ACC', 'Scoopy Fashion ACC', 'Scoopy Fashion ACC', 'Scoopy Series'),
+    'ALL NEW SCOOPY PRESTIGE': ('Scoopy Prestige ACC / Scoopy Stylish ACC', 'Scoopy Prestige ACC / Scoopy Stylish ACC', 'Scoopy Prestige ACC', 'Scoopy Series'),
+    'ALL NEW SCOOPY STYLISH': ('Scoopy Prestige ACC / Scoopy Stylish ACC', 'Scoopy Prestige ACC / Scoopy Stylish ACC', 'Scoopy Stylish ACC', 'Scoopy Series'),
+
     # Vario Series
-    'ALL NEW VARIO 125 CBS': ('VARIO 125 CBS ACC', 'VARIO 125 CBS ACC', 'Honda All New Vario 125 CBS', 'Vario Series'),
-    'ALL NEW VARIO 125 CBS ISS': ('VARIO 125 CBS ISS ACC', 'VARIO 125 CBS ISS ACC', 'Honda All New Vario 125 CBS-ISS', 'Vario Series'),
-    'ALL NEW VARIO 125 STREET': ('VARIO 125 STREET ACC', 'VARIO 125 STREET ACC', 'Honda All New Vario 125 Street', 'Vario Series'),
-    'ALL NEW VARIO 160 CBS': ('Vario Evo 160 CBS', 'Vario Evo 160 CBS', 'Honda All New Vario 160 CBS', 'Vario Series'),
-    'ALL NEW VARIO 160 CBS NITRO': ('Vario Evo 160 CBS NITRO', 'Vario Evo 160 CBS NITRO', 'Honda All New Vario 160 CBS Nitro', 'Vario Series'),
-    'ALL NEW VARIO 160 ABS': ('Vario Evo 160 ABS ACC', 'Vario Evo 160 ABS ACC', 'Honda All New Vario 160 ABS', 'Vario Series'),
-    
+    'ALL NEW VARIO 125 CBS': ('VARIO 125 CBS ACC', 'VARIO 125 CBS ACC', 'VARIO 125 CBS ACC', 'Vario Series'),
+    'ALL NEW VARIO 125 CBS ISS': ('VARIO 125 CBS ISS ACC', 'VARIO 125 CBS ISS ACC', 'VARIO 125 CBS ISS ACC', 'Vario Series'),
+    'ALL NEW VARIO 125 STREET': ('VARIO 125 STREET ACC', 'VARIO 125 STREET ACC', 'VARIO 125 STREET ACC', 'Vario Series'),
+    'ALL NEW VARIO 160 CBS': ('Vario Evo 160 CBS', 'Vario Evo 160 CBS', 'Vario Evo 160 CBS', 'Vario Series'),
+    'ALL NEW VARIO 160 CBS NITRO': ('Vario Evo 160 CBS NITRO', 'Vario Evo 160 CBS NITRO', 'Vario Evo 160 CBS NITRO', 'Vario Series'),
+    'ALL NEW VARIO 160 ABS': ('Vario Evo 160 ABS ACC', 'Vario Evo 160 ABS ACC', 'Vario Evo 160 ABS ACC', 'Vario Series'),
+
     # Stylo Series
-    'ALL NEW STYLO CBS': ('Stylo 160 CBS ACC', 'Stylo 160 CBS ACC', 'Honda Stylo 160 CBS', 'Stylo Series'),
-    'ALL NEW STYLO ABS': ('Stylo 160 ABS ACC', 'Stylo 160 ABS ACC', 'Honda Stylo 160 ABS', 'Stylo Series'),
-    'ALL NEW STYLO ABS SE': ('Stylo 160 ABS SE ACC', 'Stylo 160 ABS SE ACC', 'Honda Stylo 160 ABS Special Edition', 'Stylo Series'),
-    
+    'ALL NEW STYLO CBS': ('Stylo 160 CBS ACC', 'Stylo 160 CBS ACC', 'Stylo 160 CBS ACC', 'Stylo Series'),
+    'ALL NEW STYLO ABS': ('Stylo 160 ABS ACC', 'Stylo 160 ABS ACC', 'Stylo 160 ABS ACC', 'Stylo Series'),
+    'ALL NEW STYLO ABS SE': ('Stylo 160 ABS SE ACC', 'Stylo 160 ABS SE ACC', 'Stylo 160 ABS SE ACC', 'Stylo Series'),
+
     # PCX Series
-    'ALL NEW PCX CBS 160': ('PCX 160 CBS', 'PCX 160 CBS', 'Honda PCX 160 CBS', 'PCX Series'),
-    'ALL NEW PCX ABS 160': ('PCX 160 ABS ACC', 'PCX 160 ABS ACC', 'Honda PCX 160 ABS', 'PCX Series'),
-    'ALL NEW PCX ABS 160 ROADSYNCE': ('PCX 160 ABS RoadSync ACC', 'PCX 160 ABS RoadSync ACC', 'Honda PCX 160 ABS RoadSync', 'PCX Series'),
-    
+    'ALL NEW PCX CBS 160': ('PCX 160 CBS', 'PCX 160 CBS', 'PCX 160 CBS', 'PCX Series'),
+    'ALL NEW PCX ABS 160': ('PCX 160 ABS ACC', 'PCX 160 ABS ACC', 'PCX 160 ABS ACC', 'PCX Series'),
+    'ALL NEW PCX ABS 160 ROADSYNCE': ('PCX 160 ABS RoadSync ACC', 'PCX 160 ABS RoadSync ACC', 'PCX 160 ABS RoadSync ACC', 'PCX Series'),
+
     # ADV Series
-    'ALL NEW ADV CBS 160': ('ADV160 CBS /', 'ADV160 CBS /', 'Honda ADV 160 CBS', 'ADV Series'),
-    'ALL NEW ADV ABS 160': ('ADV 160 ABS ACC /', 'ADV 160 ABS ACC /', 'Honda ADV 160 ABS', 'ADV Series'),
-    'ALL NEW ADV ABS 160 ROADSYNCE': ('ADV 160 ABS RoadSync ACC', 'ADV 160 ABS RoadSync ACC', 'Honda ADV 160 ABS RoadSync', 'ADV Series'),
-    
+    'ALL NEW ADV CBS 160': ('ADV160 CBS /', 'ADV160 CBS /', 'ADV160 CBS', 'ADV Series'),
+    'ALL NEW ADV ABS 160': ('ADV 160 ABS ACC /', 'ADV 160 ABS ACC /', 'ADV 160 ABS ACC', 'ADV Series'),
+    'ALL NEW ADV ABS 160 ROADSYNCE': ('ADV 160 ABS RoadSync ACC', 'ADV 160 ABS RoadSync ACC', 'ADV 160 ABS RoadSync ACC', 'ADV Series'),
+
     # Revo & Supra Series
-    'ALL NEW REVO FIT': ('REVO FIT', 'REVO FIT', 'Honda Revo Fit', 'Revo Series'),
-    'ALL NEW REVO X': ('REVO X', 'REVO X', 'Honda Revo X', 'Revo Series'),
-    'ALL NEW SUPRA X 125 SW': ('Supra X 125 SW', 'Supra X 125 SW', 'Honda Supra X 125 Spoke (SW)', 'Supra Series'),
-    'ALL NEW SUPRA X CW': ('Supra X 125 CW', 'Supra X 125 CW', 'Honda Supra X 125 Cast Wheel (CW)', 'Supra Series'),
-    'ALL NEW SUPRA GTR SPORTY': ('SUPRA GTR 150 SPORTY', 'SUPRA GTR 150 SPORTY', 'Honda Supra GTR 150 Sporty', 'Supra Series'),
-    'ALL NEW SUPTA GTR EXLUSIVE': ('SUPRA GTR 150 EXCLUSIVE', 'SUPRA GTR 150 EXCLUSIVE', 'Honda Supra GTR 150 Exclusive', 'Supra Series'),
-    
+    'ALL NEW REVO FIT': ('REVO FIT', 'REVO FIT', 'REVO FIT', 'Revo Series'),
+    'ALL NEW REVO X': ('REVO X', 'REVO X', 'REVO X', 'Revo Series'),
+    'ALL NEW SUPRA X 125 SW': ('Supra X 125 SW', 'Supra X 125 SW', 'Supra X 125 SW', 'Supra Series'),
+    'ALL NEW SUPRA X CW': ('Supra X 125 CW', 'Supra X 125 CW', 'Supra X 125 CW', 'Supra Series'),
+    'ALL NEW SUPRA GTR SPORTY': ('SUPRA GTR 150 SPORTY', 'SUPRA GTR 150 SPORTY', 'SUPRA GTR 150 SPORTY', 'Supra Series'),
+    'ALL NEW SUPTA GTR EXLUSIVE': ('SUPRA GTR 150 EXCLUSIVE', 'SUPRA GTR 150 EXCLUSIVE', 'SUPRA GTR 150 EXCLUSIVE', 'Supra Series'),
+
     # Sport Series
-    'ALL NEW CB VERZA SP': ('CB150 Verza SW', None, 'Honda CB150 Verza Spoke', 'CB Verza Series'),
-    'ALL NEW CB VERZA CW': ('CB150 Verza CW', None, 'Honda CB150 Verza Cast Wheel', 'CB Verza Series'),
-    'ALL NEW CB150R STD': ('CB150R STD', None, 'Honda CB150R Streetfire STD', 'CB150 Series'),
-    'ALL NEW CB150R SE': ('CB150R SE', None, 'Honda CB150R Streetfire Special Edition', 'CB150 Series'),
-    'ALL NEW CB150X STD': ('CB150X STD', None, 'Honda CB150X STD', 'CB150 Series'),
-    'ALL NEW CB150X SP': ('CB150X SE', None, 'Honda CB150X Special Edition', 'CB150 Series'),
-    'ALL NEW CRF 150 L': ('NEW CRF150L (RD) ACC / NEW CRF150L (PH) ACC / NEW CRF150L (BK & GH) ACC', None, 'Honda CRF 150L', 'CRF/Off-Road Series'),
-    'ALL NEW CBR 150 STD BK': ('CBR150R STD BK /', None, 'Honda CBR 150R STD Black', 'CBR Series'),
-    'ALL NEW CBR 150 STD MH-RD': ('CBR150R STD MH / CBR150R STD RD', None, 'Honda CBR 150R STD Racing Red', 'CBR Series'),
-    'ALL NEW CBR 150 ABS BK': ('CBR150R ABS BK /', None, 'Honda CBR 150R ABS Black', 'CBR Series'),
-    'ALL NEW CBR 150 ABS RD': ('CBR150R ABS RD', None, 'Honda CBR 150R ABS Racing Red', 'CBR Series'),
-    
-    # Wing / Premium Series
-    'ALL NEW FORZA 250': ('FORZA', None, 'Honda Forza 250', 'Forza Series')
+    'ALL NEW CB VERZA SP': ('CB150 Verza SW', None, 'CB150 Verza SW', 'CB Verza Series'),
+    'ALL NEW CB VERZA CW': ('CB150 Verza CW', None, 'CB150 Verza CW', 'CB Verza Series'),
+    'ALL NEW CB150R STD': ('CB150R STD', None, 'CB150R STD', 'CB150 Series'),
+    'ALL NEW CB150R SE': ('CB150R SE', None, 'CB150R SE', 'CB150 Series'),
+    'ALL NEW CB150X STD': ('CB150X STD', None, 'CB150X STD', 'CB150 Series'),
+    'ALL NEW CB150X SP': ('CB150X SE', None, 'CB150X SE', 'CB150 Series'),
+    'ALL NEW CRF 150 L': ('NEW CRF150L (RD) ACC / NEW CRF150L (PH) ACC / NEW CRF150L (BK & GH) ACC', None, 'NEW CRF150L (RD) ACC / NEW CRF150L (PH) ACC / NEW CRF150L (BK & GH) ACC', 'CRF/Off-Road Series'),
+    'ALL NEW CBR 150 STD BK': ('CBR150R STD BK /', None, 'CBR150R STD BK', 'CBR Series'),
+    'ALL NEW CBR 150 STD MH-RD': ('CBR150R STD MH / CBR150R STD RD', None, 'CBR150R STD MH / CBR150R STD RD', 'CBR Series'),
+    'ALL NEW CBR 150 ABS BK': ('CBR150R ABS BK /', None, 'CBR150R ABS BK', 'CBR Series'),
+    'ALL NEW CBR 150 ABS RD': ('CBR150R ABS RD', None, 'CBR150R ABS RD', 'CBR Series'),
+
+    # Wing Series
+    'ALL NEW FORZA 250': ('FORZA', None, 'FORZA', 'Forza Series')
 }
 
 asuransi_cash_map = {
@@ -316,7 +327,7 @@ asuransi_cash_map = {
     'Forza Series': 2500000
 }
 
-# Color variants mapping
+# Accurate Color variants mapping matching the real filenames on disk
 color_map = {
     'ALL BEAT CBS': {
         'WhatsApp Image 2026-07-02 at 10.43.05.png': 'Hard Rock Black (Hitam Glossy)',
@@ -324,180 +335,203 @@ color_map = {
         'WhatsApp Image 2026-07-02 at 10.43.06.png': 'Dance White Black (Putih Hitam)'
     },
     'ALL BEAT ISS': {
-        'WhatsApp Image 2026-07-02 at 10.43.43 (1).png': 'Deluxe Silver (Perak Doff)',
-        'WhatsApp Image 2026-07-02 at 10.43.43 (2).png': 'Deluxe Blue (Biru Doff)',
-        'WhatsApp Image 2026-07-02 at 10.43.43.png': 'Deluxe Black (Hitam Doff)'
+        'WhatsApp Image 2026-07-02 at 10.45.14 (1).png': 'Deluxe Black (Hitam Doff)',
+        'WhatsApp Image 2026-07-02 at 10.45.14.png': 'Deluxe Matte Green (Hijau Doff)'
     },
     'ALL BEAT STREET': {
-        'WhatsApp Image 2026-07-02 at 10.44.15.png': 'Street Brown (Cokelat Doff)',
-        'WhatsApp Image 2026-07-02 at 10.44.16.png': 'Street Black (Hitam Doff)'
+        'WhatsApp Image 2026-07-02 at 10.48.15.png': 'Street Black (Hitam Doff)',
+        'WhatsApp Image 2026-07-02 at 10.48.16 (1).png': 'Street Brown (Cokelat Doff)',
+        'WhatsApp Image 2026-07-02 at 10.48.16.png': 'Street Silver (Silver Doff)'
     },
     'ALL NEW BEAT CBS': {
-        'WhatsApp Image 2026-07-02 at 10.43.05.png': 'Hard Rock Black (Hitam Glossy)',
-        'WhatsApp Image 2026-07-02 at 10.43.06 (1).png': 'Funk Red Black (Merah Hitam)',
-        'WhatsApp Image 2026-07-02 at 10.43.06.png': 'Dance White Black (Putih Hitam)'
+        'WhatsApp Image 2026-07-02 at 10.43.31.png': 'Hard Rock Black (Hitam Glossy)',
+        'WhatsApp Image 2026-07-02 at 10.43.31 (1).png': 'Funk Red Black (Merah Hitam)',
+        'WhatsApp Image 2026-07-02 at 10.43.31 (2).png': 'Jazz Silver Black (Silver Biru)'
     },
     'ALL NEW BEAT ISS': {
-        'WhatsApp Image 2026-07-02 at 10.43.43 (1).png': 'Deluxe Silver (Perak Doff)',
-        'WhatsApp Image 2026-07-02 at 10.43.43 (2).png': 'Deluxe Blue (Biru Doff)',
-        'WhatsApp Image 2026-07-02 at 10.43.43.png': 'Deluxe Black (Hitam Doff)'
+        'WhatsApp Image 2026-07-02 at 10.45.38.png': 'Deluxe Matte Black (Hitam Doff)',
+        'WhatsApp Image 2026-07-02 at 10.45.38 (1).png': 'Deluxe Matte Blue (Biru Doff)'
     },
     'ALL NEW BEAT SMARTKEY': {
-        'WhatsApp Image 2026-07-02 at 10.44.15.png': 'Deluxe Matte Green',
-        'WhatsApp Image 2026-07-02 at 10.44.16.png': 'Deluxe Matte Dark Silver'
+        'WhatsApp Image 2026-07-02 at 10.46.32 (1).png': 'Deluxe Matte Blue (Biru Doff)',
+        'WhatsApp Image 2026-07-02 at 10.46.32.png': 'Deluxe Matte Green (Hijau Doff)',
+        'WhatsApp Image 2026-07-02 at 10.46.33.png': 'Deluxe Matte Black (Hitam Doff)'
     },
     'ALL NEW BEAT STREET': {
-        'WhatsApp Image 2026-07-02 at 10.44.15.png': 'Street Brown (Cokelat Doff)',
-        'WhatsApp Image 2026-07-02 at 10.44.16.png': 'Street Black (Hitam Doff)'
+        'WhatsApp Image 2026-07-02 at 10.48.43 (1).png': 'Street Brown (Cokelat Doff)',
+        'WhatsApp Image 2026-07-02 at 10.48.43 (2).png': 'Street Black (Hitam Doff)',
+        'WhatsApp Image 2026-07-02 at 10.48.43.png': 'Street Matte Grey (Abu-abu Doff)'
+    },
+    'ALL NEW GENIO CBS': {
+        'WhatsApp Image 2026-07-02 at 10.52.19.png': 'Radiant Black Glossy (Hitam)'
+    },
+    'ALL NEW GENIO CBS SP': {
+        'WhatsApp Image 2026-07-02 at 10.51.13 (1).png': 'Radiant White (Putih Mutiara)',
+        'WhatsApp Image 2026-07-02 at 10.51.13.png': 'Radiant Red (Merah Glossy)'
+    },
+    'ALL NEW GENIO CBS ISS': {
+        'WhatsApp Image 2026-07-02 at 10.49.57 (1).png': 'Fabulous Matte Black (Hitam Doff)',
+        'WhatsApp Image 2026-07-02 at 10.49.57.png': 'Fabulous Matte Blue (Biru Doff)',
+        'WhatsApp Image 2026-07-02 at 10.49.58.png': 'Fabulous Matte Green (Hijau Doff)'
     },
     'ALL NEW SCOOPY FASHION': {
-        'WhatsApp Image 2026-07-02 at 10.51.52.png': 'Fashion Blue (Biru Muda)',
-        'WhatsApp Image 2026-07-02 at 10.51.53.png': 'Fashion Brown (Cokelat Cream)'
+        'WhatsApp Image 2026-07-02 at 10.53.35 (1).png': 'Fashion Black (Hitam)',
+        'WhatsApp Image 2026-07-02 at 10.53.35 (2).png': 'Fashion Brown (Cokelat)',
+        'WhatsApp Image 2026-07-02 at 10.53.35.png': 'Fashion Blue (Biru)',
+        'WhatsApp Image 2026-07-02 at 10.53.36.png': 'Fashion Red (Merah)'
     },
     'ALL NEW SCOOPY PRESTIGE': {
-        'WhatsApp Image 2026-07-02 at 10.52.27 (1).png': 'Prestige Green (Hijau Doff)',
-        'WhatsApp Image 2026-07-02 at 10.52.27.png': 'Prestige White (Putih Mutiara)'
+        'WhatsApp Image 2026-07-02 at 10.56.44 (1).png': 'Prestige Black (Hitam Doff)',
+        'WhatsApp Image 2026-07-02 at 10.56.44 (2).png': 'Prestige Green (Hijau Doff)',
+        'WhatsApp Image 2026-07-02 at 10.56.44.png': 'Prestige White (Putih Mutiara)'
     },
     'ALL NEW SCOOPY STYLISH': {
-        'WhatsApp Image 2026-07-02 at 10.52.54 (1).png': 'Stylish Red (Merah Doff)',
-        'WhatsApp Image 2026-07-02 at 10.52.54.png': 'Stylish Green (Hijau Klasik)'
+        'WhatsApp Image 2026-07-02 at 10.55.20 (2).png': 'Stylish Green (Hijau Doff)',
+        'WhatsApp Image 2026-07-02 at 10.55.20(1).png': 'Stylish Red (Merah Doff)',
+        'WhatsApp Image 2026-07-02 at 10.55.20.png': 'Stylish Brown (Cokelat Doff)'
     },
     'ALL NEW VARIO 125 CBS': {
-        'WhatsApp Image 2026-07-02 at 10.53.28 (1).png': 'Sporty Black (Hitam Merah)',
-        'WhatsApp Image 2026-07-02 at 10.53.28.png': 'Sporty Red (Merah Glossy)'
+        'WhatsApp Image 2026-07-02 at 10.57.51 (1).png': 'Sporty Black (Hitam Merah)',
+        'WhatsApp Image 2026-07-02 at 10.57.51.png': 'Sporty Blue (Biru Glossy)',
+        'WhatsApp Image 2026-07-02 at 10.57.52.png': 'Sporty Red (Merah Glossy)'
     },
     'ALL NEW VARIO 125 CBS ISS': {
-        'WhatsApp Image 2026-07-02 at 10.54.02 (1).png': 'Advance Matte Black (Hitam Emas)',
-        'WhatsApp Image 2026-07-02 at 10.54.02.png': 'Advance Matte Blue (Biru Doff)'
+        'WhatsApp Image 2026-07-02 at 10.59.00 (1).png': 'Advance Matte Blue (Biru Doff)',
+        'WhatsApp Image 2026-07-02 at 10.59.00.png': 'Advance Matte Red (Merah Doff)',
+        'WhatsApp Image 2026-07-02 at 10.59.01.png': 'Advance Matte Black (Hitam Doff)'
     },
     'ALL NEW VARIO 125 STREET': {
-        'WhatsApp Image 2026-07-02 at 10.54.40.png': 'Street Matte Black (Street Edition)'
+        'IMG_202607185_094805202.png': 'Street Matte Black (Hitam Doff)',
+        'WhatsApp Image 2026-07-02 at 11.00.07.png': 'Street Matte Blue (Biru Doff)',
+        'WhatsApp Image 2026-07-02 at 11.00.08.png': 'Street Matte Red (Merah Doff)'
     },
     'ALL NEW VARIO 160 CBS': {
-        'WhatsApp Image 2026-07-02 at 11.04.57 (1).png': 'Grande Matte Red (Merah Doff)',
-        'WhatsApp Image 2026-07-02 at 11.04.57.png': 'Grande Matte Black (Hitam Doff)'
+        'WhatsApp Image 2026-07-02 at 11.04.57 (1).png': 'Grande Matte Blue (Biru Doff)',
+        'WhatsApp Image 2026-07-02 at 11.04.57.png': 'Grande Matte Red (Merah Doff)'
     },
     'ALL NEW VARIO 160 CBS NITRO': {
-        'WhatsApp Image 2026-07-02 at 11.06.51 (1).png': 'Active Matte Black (Nitro Red)',
-        'WhatsApp Image 2026-07-02 at 11.06.51.png': 'Active Matte Blue (Nitro Blue)'
+        'WhatsApp Image 2026-07-02 at 11.06.51 (1).png': 'Active Matte Red (Nitro Red)',
+        'WhatsApp Image 2026-07-02 at 11.06.51.png': 'Active Matte Black (Nitro Black)'
     },
     'ALL NEW VARIO 160 ABS': {
         'WhatsApp Image 2026-07-02 at 11.08.06 (1).png': 'Grande Matte White (Putih Doff)',
-        'WhatsApp Image 2026-07-02 at 11.08.06 (2).png': 'Grande Matte Black (Hitam Doff)',
-        'WhatsApp Image 2026-07-02 at 11.08.06.png': 'Grande Matte Blue (Biru Doff)'
+        'WhatsApp Image 2026-07-02 at 11.08.06 (2).png': 'Grande Matte Red (Merah Doff)',
+        'WhatsApp Image 2026-07-02 at 11.08.06.png': 'Grande Matte Blue (Biru Doff)',
+        'WhatsApp Image 2026-07-02 at 11.08.07.png': 'Grande Matte Black (Hitam Doff)'
     },
     'ALL NEW STYLO CBS': {
-        'WhatsApp Image 2026-07-02 at 10.55.19 (1).png': 'Glam Red (Merah Glossy)',
-        'WhatsApp Image 2026-07-02 at 10.55.19 (2).png': 'Glam Black (Hitam Glossy)',
-        'WhatsApp Image 2026-07-02 at 10.55.19.png': 'Glam Beige (Krem Elegan)'
+        'WhatsApp Image 2026-07-02 at 11.09.38 (1).png': 'Glam Red (Merah Glossy)',
+        'WhatsApp Image 2026-07-02 at 11.09.38 (2).png': 'Glam Black (Hitam Glossy)',
+        'WhatsApp Image 2026-07-02 at 11.09.38.png': 'Glam Beige (Krem Elegan)'
     },
     'ALL NEW STYLO ABS': {
-        'WhatsApp Image 2026-07-02 at 10.56.02 (1).png': 'Royal Green (Hijau Doff)',
-        'WhatsApp Image 2026-07-02 at 10.56.02.png': 'Royal Matte Black (Hitam Doff)'
+        'WhatsApp Image 2026-07-02 at 11.10.51 (1).png': 'Royal Green (Hijau Doff)',
+        'WhatsApp Image 2026-07-02 at 11.10.51.png': 'Royal Matte Black (Hitam Doff)',
+        'WhatsApp Image 2026-07-02 at 11.10.52.png': 'Royal Matte White (Putih Doff)'
     },
     'ALL NEW STYLO ABS SE': {
-        'WhatsApp Image 2026-07-02 at 10.56.02 (1).png': 'Royal White Special Edition'
+        'WhatsApp Image 2026-07-02 at 11.11.37.png': 'Royal White Special Edition (Putih SE)'
     },
     'ALL NEW PCX CBS 160': {
-        'WhatsApp Image 2026-07-02 at 10.56.40 (1).png': 'Marvelous Matte Silver',
-        'WhatsApp Image 2026-07-02 at 10.56.40 (2).png': 'Magnificent Red',
-        'WhatsApp Image 2026-07-02 at 10.56.40.png': 'Brilliant Black'
+        'WhatsApp Image 2026-07-03 at 19.45.53 (1).png': 'Marvelous Matte Silver',
+        'WhatsApp Image 2026-07-03 at 19.45.53.png': 'Magnificent Red',
+        'WhatsApp Image 2026-07-03 at 19.45.54 (1).png': 'Brilliant Black',
+        'WhatsApp Image 2026-07-03 at 19.45.54.png': 'Wonderful White'
     },
     'ALL NEW PCX ABS 160': {
-        'WhatsApp Image 2026-07-02 at 10.57.17 (1).png': 'Imperial Matte Blue',
-        'WhatsApp Image 2026-07-02 at 10.57.17.png': 'Majestic Matte Red'
+        'WhatsApp Image 2026-07-03 at 19.45.54 (2).png': 'Imperial Matte Blue',
+        'WhatsApp Image 2026-07-03 at 19.45.55 (1).png': 'Majestic Matte Red',
+        'WhatsApp Image 2026-07-03 at 19.45.55 (2).png': 'Brilliant Black (ABS)',
+        'WhatsApp Image 2026-07-03 at 19.45.55.png': 'Wonderful White (ABS)'
     },
     'ALL NEW PCX ABS 160 ROADSYNCE': {
-        'WhatsApp Image 2026-07-02 at 10.57.17 (1).png': 'RoadSync Matte Brown',
-        'WhatsApp Image 2026-07-02 at 10.57.17.png': 'RoadSync Ultimate Red'
+        'WhatsApp Image 2026-07-03 at 19.45.56 (1).png': 'RoadSync Ultimate Matte Red',
+        'WhatsApp Image 2026-07-03 at 19.45.56.png': 'RoadSync Matte Brown'
     },
     'ALL NEW ADV CBS 160': {
-        'WhatsApp Image 2026-07-02 at 10.58.01 (1).png': 'Dynamic Red',
-        'WhatsApp Image 2026-07-02 at 10.58.01 (2).png': 'Dynamic Black',
-        'WhatsApp Image 2026-07-02 at 10.58.01.png': 'Dynamic White'
+        'WhatsApp Image 2026-07-03 at 19.45.56 (2).png': 'Dynamic Red',
+        'WhatsApp Image 2026-07-03 at 19.45.56 (3).png': 'Dynamic Black',
+        'WhatsApp Image 2026-07-03 at 19.45.57.png': 'Dynamic White'
     },
     'ALL NEW ADV ABS 160': {
-        'WhatsApp Image 2026-07-02 at 10.58.46 (1).png': 'Tough Matte Brown',
-        'WhatsApp Image 2026-07-02 at 10.58.46.png': 'Tough Matte Black'
+        'WhatsApp Image 2026-07-03 at 19.45.57 (1).png': 'Tough Matte Brown',
+        'WhatsApp Image 2026-07-03 at 19.45.57 (2).png': 'Tough Matte Black',
+        'WhatsApp Image 2026-07-03 at 19.45.57 (3).png': 'Tough Matte Silver'
     },
     'ALL NEW ADV ABS 160 ROADSYNCE': {
-        'WhatsApp Image 2026-07-02 at 10.58.46 (1).png': 'RoadSync Tough Silver'
-    },
-    'ALL NEW GENIO CBS': {
-        'WhatsApp Image 2026-07-02 at 10.45.10 (1).png': 'Radiant Black Silver',
-        'WhatsApp Image 2026-07-02 at 10.45.10.png': 'Radiant Red Black'
-    },
-    'ALL NEW GENIO CBS SP': {
-        'WhatsApp Image 2026-07-02 at 10.45.10 (1).png': 'Fabulous Matte Black',
-        'WhatsApp Image 2026-07-02 at 10.45.10.png': 'Fabulous Matte Blue'
-    },
-    'ALL NEW GENIO CBS ISS': {
-        'WhatsApp Image 2026-07-02 at 10.45.54 (1).png': 'Fabulous Matte Green',
-        'WhatsApp Image 2026-07-02 at 10.45.54.png': 'Fabulous Matte Black'
-    },
-    'ALL NEW CRF 150 L': {
-        'WhatsApp Image 2026-07-02 at 11.00.41 (1).png': 'Extreme Black',
-        'WhatsApp Image 2026-07-02 at 11.00.41 (2).png': 'Extreme Red',
-        'WhatsApp Image 2026-07-02 at 11.00.41.png': 'Extreme Grey'
-    },
-    'ALL NEW CBR 150 STD BK': {
-        'WhatsApp Image 2026-07-02 at 11.01.21.png': 'Dominator Matte Black'
-    },
-    'ALL NEW CBR 150 STD MH-RD': {
-        'WhatsApp Image 2026-07-02 at 11.01.55.png': 'Honda Racing Red'
-    },
-    'ALL NEW CBR 150 ABS BK': {
-        'WhatsApp Image 2026-07-02 at 11.02.40.png': 'Victory Black Red (ABS)'
-    },
-    'ALL NEW CBR 150 ABS RD': {
-        'WhatsApp Image 2026-07-02 at 11.03.11.png': 'Honda Tricolor (ABS)'
-    },
-    'ALL NEW CB150R STD': {
-        'WhatsApp Image 2026-07-02 at 10.59.26 (1).png': 'Macho Black',
-        'WhatsApp Image 2026-07-02 at 10.59.26.png': 'Stinger Red Black'
-    },
-    'ALL NEW CB150R SE': {
-        'WhatsApp Image 2026-07-02 at 10.59.26 (1).png': 'Fury Matte Red SE',
-        'WhatsApp Image 2026-07-02 at 10.59.26.png': 'Raptor Matte Black SE'
-    },
-    'ALL NEW CB150X STD': {
-        'WhatsApp Image 2026-07-02 at 11.00.04 (1).png': 'Mandala Red',
-        'WhatsApp Image 2026-07-02 at 11.00.04.png': 'Amazon Green'
-    },
-    'ALL NEW CB150X SP': {
-        'WhatsApp Image 2026-07-02 at 11.00.04.png': 'Volcano Matte Black SE'
-    },
-    'ALL NEW CB VERZA SP': {
-        'WhatsApp Image 2026-07-02 at 10.49.52.png': 'Macho Matte Black (Spoke)'
-    },
-    'ALL NEW CB VERZA CW': {
-        'WhatsApp Image 2026-07-02 at 10.50.29 (1).png': 'Bold Red (Cast Wheel)',
-        'WhatsApp Image 2026-07-02 at 10.50.29.png': 'Macho Matte Black (Cast Wheel)'
+        'WhatsApp Image 2026-07-03 at 19.45.58.png': 'RoadSync Tough Silver Red'
     },
     'ALL NEW REVO FIT': {
-        'WhatsApp Image 2026-07-02 at 10.46.33.png': 'Raving Red',
-        'WhatsApp Image 2026-07-02 at 10.46.34.png': 'Galaxy Blue'
+        'WhatsApp Image 2026-07-03 at 19.45.59 (2).png': 'Galaxy Blue',
+        'WhatsApp Image 2026-07-03 at 19.46.00.png': 'Raving Red'
     },
     'ALL NEW REVO X': {
-        'WhatsApp Image 2026-07-02 at 10.47.16 (1).png': 'Attractive Red',
-        'WhatsApp Image 2026-07-02 at 10.47.16.png': 'Quantum Black'
+        'WhatsApp Image 2026-07-03 at 19.46.00 (1).png': 'Quantum Black',
+        'WhatsApp Image 2026-07-03 at 19.46.00 (2).png': 'Attractive Red'
     },
     'ALL NEW SUPRA X 125 SW': {
-        'WhatsApp Image 2026-07-02 at 10.47.53.png': 'Energetic Red (SW)'
+        'WhatsApp Image 2026-07-03 at 19.46.01.png': 'Energetic Red (SW)'
     },
     'ALL NEW SUPRA X CW': {
-        'WhatsApp Image 2026-07-02 at 10.48.33 (1).png': 'Golden Matte Black (CW)',
-        'WhatsApp Image 2026-07-02 at 10.48.33.png': 'Quantum Matte Black (CW)'
+        'WhatsApp Image 2026-07-03 at 19.46.01 (1).png': 'Golden Matte Black (CW)',
+        'WhatsApp Image 2026-07-03 at 19.46.01 (2).png': 'Quantum Matte Black (CW)'
     },
     'ALL NEW SUPRA GTR SPORTY': {
-        'WhatsApp Image 2026-07-02 at 10.49.12.png': 'Sporty Spartan Red'
+        'WhatsApp Image 2026-07-03 at 19.46.01 (3).png': 'Sporty Spartan Red',
+        'WhatsApp Image 2026-07-03 at 19.46.02 (2).png': 'Sporty Gun Black'
     },
     'ALL NEW SUPTA GTR EXLUSIVE': {
-        'WhatsApp Image 2026-07-02 at 10.49.12.png': 'Exclusive Matte Silver'
+        'WhatsApp Image 2026-07-03 at 19.46.02 (1).png': 'Exclusive Matte Red',
+        'WhatsApp Image 2026-07-03 at 19.46.02.png': 'Exclusive Matte Silver'
+    },
+    'ALL NEW CB VERZA SP': {
+        'WhatsApp Image 2026-07-03 at 19.46.04.png': 'Macho Matte Black (Spoke)'
+    },
+    'ALL NEW CB VERZA CW': {
+        'WhatsApp Image 2026-07-03 at 19.46.03 (1).png': 'Macho Matte Black (Cast Wheel)',
+        'WhatsApp Image 2026-07-03 at 19.46.03.png': 'Bold Red (Cast Wheel)'
+    },
+    'ALL NEW CB150R STD': {
+        'WhatsApp Image 2026-07-03 at 19.46.05.png': 'Macho Black',
+        'WhatsApp Image 2026-07-03 at 19.46.06.png': 'Stinger Red Black'
+    },
+    'ALL NEW CB150R SE': {
+        'WhatsApp Image 2026-07-03 at 19.46.04 (1).png': 'Fury Matte Red SE',
+        'WhatsApp Image 2026-07-03 at 19.46.05 (1).png': 'Raptor Matte Black SE',
+        'WhatsApp Image 2026-07-03 at 19.46.05 (2).png': 'Armored Matte Grey SE'
+    },
+    'ALL NEW CB150X STD': {
+        'WhatsApp Image 2026-07-03 at 19.46.07 (1).png': 'Mandala Red',
+        'WhatsApp Image 2026-07-03 at 19.46.07.png': 'Amazon Green',
+        'WhatsApp Image 2026-07-03 at 19.46.08.png': 'Glacier White'
+    },
+    'ALL NEW CB150X SP': {
+        'WhatsApp Image 2026-07-03 at 19.46.07 (2).png': 'Volcano Matte Black SE'
+    },
+    'ALL NEW CRF 150 L': {
+        'WhatsApp Image 2026-07-03 at 19.46.08 (1).png': 'Extreme Red (RD)',
+        'WhatsApp Image 2026-07-03 at 19.46.09.png': 'Extreme White / Pearl (PH)',
+        'WhatsApp Image 2026-07-03 at 19.46.12.png': 'Extreme Black (BK)',
+        'WhatsApp Image 2026-07-03 at 19.46.15.png': 'Extreme Grey (GH)'
+    },
+    'ALL NEW CBR 150 STD BK': {
+        'WhatsApp Image 2026-07-03 at 19.46.18.png': 'Dominator Matte Black (BK)'
+    },
+    'ALL NEW CBR 150 STD MH-RD': {
+        'WhatsApp Image 2026-07-03 at 19.46.31.png': 'Honda Tricolor (MH)',
+        'WhatsApp Image 2026-07-03 at 19.57.25.png': 'Honda Racing Red (RD)'
+    },
+    'ALL NEW CBR 150 ABS BK': {
+        'WhatsApp Image 2026-07-03 at 19.57.25 (1).png': 'Victory Black Red ABS (BK)'
+    },
+    'ALL NEW CBR 150 ABS RD': {
+        'WhatsApp Image 2026-07-03 at 19.57.25 (2).png': 'Honda Tricolor / Racing Red ABS (RD)'
     },
     'ALL NEW FORZA 250': {
-        'WhatsApp Image 2026-07-02 at 11.03.49.png': 'Candy Rosy Red',
-        'WhatsApp Image 2026-07-02 at 11.04.22.png': 'Matte Gunpowder Black Metallic'
+        'WhatsApp Image 2026-07-03 at 19.45.58 (1).png': 'Matte Gunpowder Black Metallic',
+        'WhatsApp Image 2026-07-03 at 19.45.58 (2).png': 'Candy Syrah Wine Red',
+        'WhatsApp Image 2026-07-03 at 19.45.59 (1).png': 'Pearl Horizon White',
+        'WhatsApp Image 2026-07-03 at 19.45.59.png': 'Indy Gray Metallic'
     }
 }
 
@@ -547,8 +581,9 @@ for folder, (fif_key, oto_key, display_name, cat) in folder_mapping.items():
     if not warna_list:
         warna_list = [{"nama": "Standar", "foto": "assets/img/logo/logo.png"}]
         
-    slug = re.sub(r'[^a-z0-9]+', '-', display_name.lower()).strip('-')
-    prod_id = f"prod-{slug}"
+    # Stable unique ID derived from folder name
+    folder_slug = re.sub(r'[^a-z0-9]+', '-', folder.lower()).strip('-')
+    prod_id = f"prod-{folder_slug}"
     
     leasing_options = []
     if fif_sims:
@@ -568,13 +603,13 @@ for folder, (fif_key, oto_key, display_name, cat) in folder_mapping.items():
         "hargaCashAsuransi": total_cash_asuransi,
         "hargaAsuransi": asuransi_cash,
         "hargaTotalCashAsuransi": total_cash_asuransi,
-        "deskripsiSingkat": f"{display_name} pilihan terbaik di kelasnya. Desain modern, performa tangguh, irit bahan bakar, dan bergaransi resmi Astra Honda Motor.",
+        "deskripsiSingkat": f"{display_name} sepeda motor Honda resmi berkualitas tinggi dari PT Astra Honda Motor. Desain modern, performa tangguh, irit bahan bakar, dan bergaransi resmi.",
         "warna": warna_list,
         "simulasiKreditFif": fif_sims,
         "simulasiKreditOto": oto_sims,
         "simulasiKredit": fif_sims if fif_sims else oto_sims,
         "leasingOptions": leasing_options,
-        "updatedAt": "2026-11-20T21:15:00.000Z"
+        "updatedAt": "2026-11-21T11:30:00.000Z"
     })
 
 print(f"Generated {len(products)} products with accurate Price List & simulations!")
@@ -588,8 +623,15 @@ print("Saved data/seed-products.json")
 default_settings = {
   "hero": {
     "backgroundUrl": "assets/img/hero/hero-bg.jpg",
-    "promoImageUrl": "assets/img/hero/promo-banner.jpg",
+    "promoImageUrl": "promo/promo-1.webp",
     "promoActive": True,
+    "promoList": [
+      {"id": "promo-1", "url": "promo/promo-1.webp", "alt": "Promo Honda 1", "active": True},
+      {"id": "promo-2", "url": "promo/promo-2.webp", "alt": "Promo Honda 2", "active": True},
+      {"id": "promo-3", "url": "promo/promo-3.webp", "alt": "Promo Honda 3", "active": True},
+      {"id": "promo-4", "url": "promo/promo-4.webp", "alt": "Promo Honda 4", "active": True},
+      {"id": "promo-5", "url": "promo/promo-5.webp", "alt": "Promo Honda 5", "active": True}
+    ],
     "title": "Dealer Resmi Sepeda Motor Honda",
     "subtitle": "HENGKI HONDA JPA",
     "tagline": "Dapatkan Promo DP Ringan, Angsuran Terjangkau FIF & OTO, Diskon Spesial, dan Proses Cepat Mudah Terpercaya!",

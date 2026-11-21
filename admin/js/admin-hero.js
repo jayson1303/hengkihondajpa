@@ -1,5 +1,5 @@
 // ==========================================================================
-// APAI SELAMAT MOTOR PALABUHANRATU
+// HENGKI HONDA JPA
 // admin-hero.js - Kelola Hero Section & Banner Promo
 // ==========================================================================
 

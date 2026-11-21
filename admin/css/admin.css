@@ -1,5 +1,5 @@
 /* ==========================================================================
-   APAI SELAMAT MOTOR PALABUHANRATU - ADMIN PANEL STYLESHEET
+   HENGKI HONDA JPA - ADMIN PANEL STYLESHEET
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
@@ -855,4 +855,289 @@ body {
 
 .btn-danger-action:hover {
   background: #B91C1C;
+}
+
+/* ==========================================================================
+   TANYA JAWAB (QnA) ADMIN STYLES
+   ========================================================================== */
+.sidebar-badge {
+  background: #EF4444;
+  color: #FFFFFF;
+  border-radius: 12px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: auto;
+  line-height: 1.2;
+}
+
+.qna-filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.btn-qna-filter {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  color: #475569;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-qna-filter:hover {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+  color: #0F172A;
+}
+
+.btn-qna-filter.active {
+  background: #DC2626;
+  border-color: #B91C1C;
+  color: #FFFFFF;
+}
+
+.btn-qna-filter .filter-count {
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+}
+
+.btn-qna-filter.active .filter-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+}
+
+.qna-row.row-pending {
+  background: #FFFBEB;
+}
+
+.qna-badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.qna-badge-status.approved {
+  background: #DCFCE7;
+  color: #166534;
+  border: 1px solid #86EFAC;
+}
+
+.qna-badge-status.pending {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+
+.qna-answer-editor {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.qna-answer-input {
+  width: 100%;
+  font-size: 0.85rem;
+  resize: vertical;
+}
+
+.btn-success-action {
+  background: #059669;
+  color: #FFFFFF;
+  border: 1px solid #047857;
+}
+
+.btn-success-action:hover {
+  background: #047857;
+}
+
+/* ==========================================================================
+   PROMO BANNER (5 SLOTS) ADMIN STYLES
+   ========================================================================== */
+.admin-promo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 22px;
+  margin-top: 20px;
+}
+
+.admin-promo-slot-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-promo-slot-card:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.promo-slot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.promo-slot-number {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #0F172A;
+}
+
+.promo-status-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.promo-status-pill.active {
+  background: #DCFCE7;
+  color: #166534;
+  border: 1px solid #86EFAC;
+}
+
+.promo-status-pill.inactive {
+  background: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+}
+
+.promo-slot-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.btn-slot-move {
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  color: #475569;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  transition: all 0.15s ease;
+}
+
+.btn-slot-move:hover:not(:disabled) {
+  background: #DC2626;
+  border-color: #B91C1C;
+  color: #FFFFFF;
+}
+
+.btn-slot-move:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.promo-preview-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4.2;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0F172A;
+  border: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.promo-slot-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+
+.promo-slot-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(220, 38, 38, 0.9);
+  color: #FFFFFF;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.promo-meta-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #64748B;
+}
+
+.promo-dim-badge,
+.promo-format-badge {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.promo-warning-box {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.promo-slot-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.btn-upload-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin: 0;
+}
+
+.btn-delete-slot {
+  padding: 8px 12px;
+  font-size: 0.8rem;
 }

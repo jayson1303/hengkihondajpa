@@ -1,5 +1,5 @@
 // ==========================================================================
-// APAI SELAMAT MOTOR PALABUHANRATU
+// HENGKI HONDA JPA
 // image-utils.js - Image Compression & Robust Firebase Storage / Base64 Fallback
 // ==========================================================================
 
@@ -269,5 +269,131 @@ export function setupCompressedPreview(fileInput, imgPreview, options = {}, onDo
       };
       reader.readAsDataURL(file);
     }
+  });
+}
+
+/**
+ * Otomatis crop, resize ke rasio ideal promo frame (~3:4.2 / 900x1260px), dan kompresi WebP tajam
+ * @param {File|Blob} file
+ * @param {Object} [options]
+ * @returns {Promise<{blob: Blob, dataUrl: string, width: number, height: number, originalWidth: number, originalHeight: number, isLowRes: boolean, warningMessage: string, size: number}>}
+ */
+export function processPromoImage(file, options = {}) {
+  const {
+    targetWidth = 900,
+    targetHeight = 1260,
+    quality = 0.90,
+    minRecommendedWidth = 600,
+    minRecommendedHeight = 800
+  } = options;
+
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      return reject(new Error("File gambar promo kosong!"));
+    }
+
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      try {
+        URL.revokeObjectURL(objectUrl);
+        const origW = img.naturalWidth || img.width;
+        const origH = img.naturalHeight || img.height;
+
+        if (!origW || !origH) {
+          return reject(new Error("Dimensi gambar tidak valid!"));
+        }
+
+        // Peringatan jika resolusi gambar asli terlalu kecil
+        let isLowRes = false;
+        let warningMessage = "";
+        if (origW < minRecommendedWidth || origH < minRecommendedHeight) {
+          isLowRes = true;
+          warningMessage = `Resolusi gambar asli (${origW}×${origH}px) agak kecil. Disarankan minimal ${targetWidth}×${targetHeight}px agar teks promo tajam dan terbaca jelas.`;
+        }
+
+        // Hitung Smart Center-Crop ke target aspect ratio
+        const targetRatio = targetWidth / targetHeight;
+        const currentRatio = origW / origH;
+
+        let srcX = 0, srcY = 0, srcW = origW, srcH = origH;
+
+        if (currentRatio > targetRatio) {
+          // Terlalu lebar -> crop sisi kiri & kanan
+          srcW = Math.round(origH * targetRatio);
+          srcX = Math.round((origW - srcW) / 2);
+        } else if (currentRatio < targetRatio) {
+          // Terlalu tinggi -> crop sisi atas & bawah
+          srcH = Math.round(origW / targetRatio);
+          srcY = Math.round((origH - srcH) / 2);
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+        const ctx = canvas.getContext("2d");
+
+        // High quality rendering
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+
+        // Background putih untuk menghindari artefak transparan
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, targetWidth, targetHeight);
+
+        // Gambar dengan center-crop tepat
+        ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, targetWidth, targetHeight);
+
+        // Kompres langsung ke WebP (tajam dan hemat bandwidth)
+        let dataUrl = canvas.toDataURL("image/webp", quality);
+        let mimeUsed = "image/webp";
+
+        // Fallback jika browser lawas tidak mendukung toDataURL webp
+        if (!dataUrl.startsWith("data:image/webp")) {
+          dataUrl = canvas.toDataURL("image/jpeg", 0.90);
+          mimeUsed = "image/jpeg";
+        }
+
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            // Manual fallback blob from dataURL
+            try {
+              const byteString = atob(dataUrl.split(",")[1]);
+              const ab = new ArrayBuffer(byteString.length);
+              const ia = new Uint8Array(ab);
+              for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+              }
+              blob = new Blob([ab], { type: mimeUsed });
+            } catch (blobErr) {
+              return reject(blobErr);
+            }
+          }
+
+          resolve({
+            blob,
+            dataUrl,
+            width: targetWidth,
+            height: targetHeight,
+            originalWidth: origW,
+            originalHeight: origH,
+            isLowRes,
+            warningMessage,
+            size: blob.size
+          });
+        }, mimeUsed, quality);
+
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Gagal membaca file gambar"));
+    };
+
+    img.src = objectUrl;
   });
 }

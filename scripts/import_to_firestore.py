@@ -86,19 +86,19 @@ def main():
             
         print("[+] Mengimport konfigurasi website (Hero, About, Contact, WhatsApp)...")
         if "hero" in settings:
-            db.collection("hero").document("main").set(settings["hero"])
+            db.collection("hero").document("main").set(settings["hero"], merge=True)
             print("    [✔] hero/main terupdate")
             
         if "about" in settings:
-            db.collection("about").document("main").set(settings["about"])
+            db.collection("about").document("main").set(settings["about"], merge=True)
             print("    [✔] about/main terupdate")
             
         if "contact" in settings:
-            db.collection("settings").document("contact").set(settings["contact"])
+            db.collection("settings").document("contact").set(settings["contact"], merge=True)
             print("    [✔] settings/contact terupdate")
             
         if "waTemplate" in settings:
-            db.collection("settings").document("waTemplate").set(settings["waTemplate"])
+            db.collection("settings").document("waTemplate").set(settings["waTemplate"], merge=True)
             print("    [✔] settings/waTemplate terupdate")
 
     # Categories
@@ -108,7 +108,7 @@ def main():
         "Revo Series", "CBR Series", "CB150 Series", "CRF/Off-Road Series", 
         "CB Verza Series", "Forza Series"
     ]
-    db.collection("settings").document("categories").set({"list": categories})
+    db.collection("settings").document("categories").set({"list": categories}, merge=True)
     print("    [✔] settings/categories terupdate")
 
     # 3. Import Testimonials

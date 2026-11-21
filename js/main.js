@@ -10,7 +10,10 @@ import {
   doc, 
   getDoc,
   getDocFromServer,
-  onSnapshot 
+  onSnapshot,
+  addDoc,
+  query,
+  orderBy
 } from "./firebase-config.js";
 
 import { 
@@ -42,6 +45,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initSearch();
   initScrollSpy();
   initPromoStack();
+  initQna();
 
   // Load All Data
   await Promise.all([
@@ -202,10 +206,31 @@ function renderHero(hero) {
   if (heroPromoWrapper) {
     heroPromoWrapper.style.display = promoEnabled ? "flex" : "none";
   }
+
+  // Terapkan daftar 5 foto promo jika tersedia dari Firestore / default settings
+  if (Array.isArray(hero.promoList) && hero.promoList.length > 0) {
+    const stack = document.getElementById("hero-promo-stack");
+    if (stack) {
+      const cards = stack.querySelectorAll(".hero-promo-card");
+      hero.promoList.forEach((promoItem, idx) => {
+        if (cards[idx]) {
+          const img = cards[idx].querySelector("img");
+          if (img && promoItem.url) {
+            img.src = withHeroVersion(promoItem.url);
+          }
+        }
+      });
+    }
+  } else if (hero.promoImageUrl) {
+    const img0 = document.getElementById("hero-promo-img-0");
+    if (img0) {
+      img0.src = withHeroVersion(hero.promoImageUrl);
+    }
+  }
 }
 
 // ==========================================================================
-// Inisialisasi 3 Kartu Banner Promo Bergantian di Depan
+// Inisialisasi 5 Kartu Banner Promo Bergantian (Flying 3D Floating Effect)
 // ==========================================================================
 function initPromoStack() {
   const stack = document.getElementById("hero-promo-stack");
@@ -217,27 +242,21 @@ function initPromoStack() {
   const prevBtn = document.getElementById("promo-prev-btn");
   const nextBtn = document.getElementById("promo-next-btn");
 
-  if (cards.length < 3) return;
+  const totalCards = cards.length;
+  if (totalCards < 2) return;
 
   let currentIndex = 0;
   let autoPlayTimer = null;
-  const ROTATE_INTERVAL = 4000; // 4 detik berpindah bergantian
+  const ROTATE_INTERVAL = 4500; // 4.5 detik bergantian otomatis
 
   function updatePositions() {
     cards.forEach((card, index) => {
-      card.classList.remove("promo-pos-front", "promo-pos-next", "promo-pos-prev");
+      // Hapus semua kelas posisi sebelumnya
+      card.className = card.className.replace(/\bpromo-pos-\S+/g, "").trim();
 
-      const pos = (index - currentIndex + 3) % 3;
-      if (pos === 0) {
-        card.classList.add("promo-pos-front");
-        card.setAttribute("aria-hidden", "false");
-      } else if (pos === 1) {
-        card.classList.add("promo-pos-next");
-        card.setAttribute("aria-hidden", "true");
-      } else {
-        card.classList.add("promo-pos-prev");
-        card.setAttribute("aria-hidden", "true");
-      }
+      const offset = (index - currentIndex + totalCards) % totalCards;
+      card.classList.add(`promo-pos-${offset}`);
+      card.setAttribute("aria-hidden", offset === 0 ? "false" : "true");
     });
 
     dots.forEach((dot, index) => {
@@ -246,7 +265,7 @@ function initPromoStack() {
   }
 
   function goTo(index) {
-    currentIndex = (index + 3) % 3;
+    currentIndex = (index + totalCards) % totalCards;
     updatePositions();
   }
 
@@ -346,6 +365,258 @@ function initPromoStack() {
   // Tampilkan susunan awal & jalankan auto play
   updatePositions();
   startAutoPlay();
+}
+
+// ==========================================================================
+// Tanya Jawab (QnA) Konsumen - Anti-Spam & Moderasi
+// ==========================================================================
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatQnaDate(isoStr) {
+  if (!isoStr) return "";
+  try {
+    const d = new Date(isoStr);
+    return d.toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  } catch (e) {
+    return isoStr;
+  }
+}
+
+function initQna() {
+  const listContainer = document.getElementById("qna-items-container");
+  const countBadge = document.getElementById("qna-badge-count");
+  const searchInput = document.getElementById("qna-search-input");
+  const filterPills = document.querySelectorAll(".qna-filter-pill");
+
+  if (!listContainer) return;
+
+  let publicQnaList = [];
+  let currentFilter = "all";
+  let searchKeyword = "";
+
+  // 1. Setup Filter Pills
+  if (filterPills.length > 0) {
+    filterPills.forEach(pill => {
+      pill.addEventListener("click", () => {
+        filterPills.forEach(p => p.classList.remove("active"));
+        pill.classList.add("active");
+        currentFilter = pill.dataset.qnaFilter || "all";
+        applyFiltersAndRender();
+      });
+    });
+  }
+
+  // 2. Setup Live Search Input
+  if (searchInput) {
+    searchInput.addEventListener("input", () => {
+      searchKeyword = (searchInput.value || "").trim().toLowerCase();
+      applyFiltersAndRender();
+    });
+  }
+
+  function applyFiltersAndRender() {
+    let filtered = publicQnaList;
+
+    // Filter by status
+    if (currentFilter === "answered") {
+      filtered = filtered.filter(item => item.jawaban && item.jawaban.trim() !== "");
+    } else if (currentFilter === "waiting") {
+      filtered = filtered.filter(item => !item.jawaban || item.jawaban.trim() === "");
+    }
+
+    // Filter by search keyword
+    if (searchKeyword) {
+      filtered = filtered.filter(item => {
+        const text = `${item.nama || ''} ${item.pertanyaan || ''} ${item.jawaban || ''} ${item.topik || ''}`.toLowerCase();
+        return text.includes(searchKeyword);
+      });
+    }
+
+    renderQnaList(filtered);
+  }
+
+  function renderQnaList(items) {
+    if (!listContainer) return;
+
+    if (countBadge) {
+      countBadge.textContent = `${items.length} Pertanyaan`;
+    }
+
+    if (items.length === 0) {
+      listContainer.innerHTML = `
+        <div class="qna-empty-state">
+          <i class="fa-solid fa-comments"></i>
+          <h4>Belum Ada Pertanyaan yang Sesuai</h4>
+          <p>Belum ada diskusi untuk kata kunci atau filter ini. Jadilah yang pertama bertanya seputar motor Honda!</p>
+          <a href="tanya-jawab.html" class="btn-primary" style="margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 10px 22px; border-radius: 20px; font-weight: 700;">
+            <i class="fa-solid fa-pen-to-square"></i> Tulis Pertanyaan Baru (Maks. 500 Karakter)
+          </a>
+        </div>
+      `;
+      return;
+    }
+
+    let html = "";
+    items.forEach((item) => {
+      const isAnswered = item.jawaban && item.jawaban.trim() !== "";
+      const isPending = item.status === "pending";
+      const avatarLetter = (item.nama || "K").charAt(0).toUpperCase();
+
+      html += `
+        <div class="qna-item-card">
+          <div class="qna-item-top">
+            <div class="qna-item-user">
+              <div class="qna-user-avatar">${escapeHtml(avatarLetter)}</div>
+              <div>
+                <div class="qna-user-name">${escapeHtml(item.nama)}</div>
+                <div class="qna-item-date">
+                  <i class="fa-regular fa-clock" style="margin-right: 3px;"></i>${formatQnaDate(item.createdAt)}
+                  ${item.topik ? ` &bull; <span class="qna-badge-topic">${escapeHtml(item.topik)}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <div>
+              ${isAnswered 
+                ? '<span class="qna-status-badge answered"><i class="fa-solid fa-circle-check"></i> Terjawab</span>' 
+                : (isPending 
+                    ? '<span class="qna-status-badge waiting"><i class="fa-solid fa-shield-halved"></i> Sedang Ditinjau Admin</span>'
+                    : '<span class="qna-status-badge waiting"><i class="fa-solid fa-clock"></i> Menunggu Jawaban</span>'
+                  )
+              }
+            </div>
+          </div>
+          <div class="qna-question-text">${escapeHtml(item.pertanyaan)}</div>
+          ${isAnswered ? `
+            <div class="qna-answer-box">
+              <div class="qna-answer-header">
+                <span class="qna-admin-tag"><i class="fa-solid fa-shield-halved"></i> Tanggapan Resmi Sales Hengki Honda JPA</span>
+                <span class="qna-answer-date">${formatQnaDate(item.answeredAt)}</span>
+              </div>
+              <div class="qna-answer-text">${escapeHtml(item.jawaban)}</div>
+            </div>
+          ` : ""}
+        </div>
+      `;
+    });
+
+    listContainer.innerHTML = html;
+  }
+
+  // Gabungkan Firestore + LocalStorage
+  function mergeAndDisplay(firestoreItems = []) {
+    let localList = [];
+    try {
+      localList = JSON.parse(localStorage.getItem("offline_qna") || "[]");
+    } catch (e) {
+      localList = [];
+    }
+
+    let mySubmitted = [];
+    try {
+      mySubmitted = JSON.parse(localStorage.getItem("my_submitted_qna") || "[]");
+    } catch (e) {
+      mySubmitted = [];
+    }
+
+    const map = new Map();
+
+    // 1. Tambahkan item Firestore yang berstatus approved
+    firestoreItems.forEach(item => {
+      if (item.status === "approved") {
+        map.set(item.id, item);
+      }
+    });
+
+    // 2. Tambahkan item lokal jika approved atau milik visitor saat ini
+    localList.forEach(item => {
+      const isMine = item.id && mySubmitted.includes(item.id);
+      if (item.status === "approved" || isMine) {
+        if (!map.has(item.id)) {
+          map.set(item.id, item);
+        }
+      }
+    });
+
+    let combined = Array.from(map.values());
+
+    // 3. Jika belum ada data sama sekali, gunakan seed demo data yang informatif
+    if (combined.length === 0) {
+      combined = getSeedQna();
+    }
+
+    // Urutkan berdasarkan waktu kirim terbaru
+    combined.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+    publicQnaList = combined;
+    applyFiltersAndRender();
+  }
+
+  // Realtime Firestore Listener
+  try {
+    const q = query(collection(db, "qna"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snapshot) => {
+      const items = [];
+      snapshot.forEach((docSnap) => {
+        items.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      mergeAndDisplay(items);
+    }, (err) => {
+      console.warn("Firestore onSnapshot qna warning:", err);
+      mergeAndDisplay([]);
+    });
+  } catch (err) {
+    console.warn("Gagal inisialisasi query qna:", err);
+    mergeAndDisplay([]);
+  }
+}
+
+function getSeedQna() {
+  return [
+    {
+      id: "qna-seed-1",
+      nama: "Bpk. Hendra Pratama",
+      topik: "Promo DP & Potongan Angsuran",
+      pertanyaan: "Apakah ada promo DP ringan atau potongan tenor untuk pengambilan BeAT Sporty CBS lewat leasing FIF?",
+      jawaban: "Halo Bpk. Hendra, di Hengki Honda JPA saat ini ada promo DP ringan mulai dari 1 jutaan dan potongan tenor spesial hingga 3 bulan untuk leasing FIF! Silakan hubungi WhatsApp sales kami untuk rincian hitungannya.",
+      status: "approved",
+      createdAt: "2026-11-20T10:30:00.000Z",
+      answeredAt: "2026-11-20T11:15:00.000Z"
+    },
+    {
+      id: "qna-seed-2",
+      nama: "Ibu Nurul Aini",
+      topik: "Persyaratan Berkas & KTP Luar Kota",
+      pertanyaan: "Persyaratan kredit motor untuk wiraswasta apa saja ya? Apakah KTP luar daerah bisa diproses?",
+      jawaban: "Halo Ibu Nurul, syarat cukup KTP Suami/Istri, Kartu Keluarga, dan bukti usaha/penghasilan. KTP luar daerah tetap kami bantu proses sampai motor diantar aman ke rumah. Terima kasih!",
+      status: "approved",
+      createdAt: "2026-11-20T14:20:00.000Z",
+      answeredAt: "2026-11-20T15:00:00.000Z"
+    },
+    {
+      id: "qna-seed-3",
+      nama: "Bpk. Dedi Supriadi",
+      topik: "Simulasi Kredit FIF & OTO",
+      pertanyaan: "Untuk Honda Vario 160 CBS, berapa perbandingan angsuran per bulan antara leasing FIF dan OTO untuk tenor 35 bulan?",
+      jawaban: "Halo Bpk. Dedi, perbandingan simulasi angsuran FIF dan OTO untuk Vario 160 CBS dapat dilihat langsung di katalog detail motor kami, atau tim sales siap mengirimkan perbandingan simulasi lengkap via WhatsApp.",
+      status: "approved",
+      createdAt: "2026-11-21T08:15:00.000Z",
+      answeredAt: "2026-11-21T09:00:00.000Z"
+    }
+  ];
 }
 
 function renderAbout(about) {

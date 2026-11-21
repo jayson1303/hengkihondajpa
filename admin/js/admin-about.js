@@ -1,5 +1,5 @@
 // ==========================================================================
-// APAI SELAMAT MOTOR PALABUHANRATU
+// HENGKI HONDA JPA
 // admin-about.js - Kelola Bagian Tentang Kami
 // ==========================================================================
 

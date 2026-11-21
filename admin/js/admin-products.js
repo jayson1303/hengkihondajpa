@@ -1,5 +1,5 @@
 // ==========================================================================
-// APAI SELAMAT MOTOR PALABUHANRATU
+// HENGKI HONDA JPA
 // admin-products.js - CRUD Produk, Simulasi Kredit, Kategori Seri & Import
 // ==========================================================================
 
@@ -1006,7 +1006,8 @@ function setupImportModalEvents() {
         const total = importedProducts.length;
 
         for (const item of importedProducts) {
-          const docId = `import-${Date.now()}-${count + 1}`;
+          const rawSlug = (item.namaMotor || item.folder || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          const docId = item.id || (rawSlug ? `prod-${rawSlug}` : `prod-${count + 1}`);
           try {
             await setDoc(doc(db, "products", docId), item, { merge: true });
           } catch (e) {

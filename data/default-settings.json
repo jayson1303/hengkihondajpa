@@ -1,8 +1,40 @@
 {
   "hero": {
     "backgroundUrl": "assets/img/hero/hero-bg.jpg",
-    "promoImageUrl": "assets/img/hero/promo-banner.jpg",
+    "promoImageUrl": "promo/promo-1.webp",
     "promoActive": true,
+    "promoList": [
+      {
+        "id": "promo-1",
+        "url": "promo/promo-1.webp",
+        "alt": "Promo Honda 1",
+        "active": true
+      },
+      {
+        "id": "promo-2",
+        "url": "promo/promo-2.webp",
+        "alt": "Promo Honda 2",
+        "active": true
+      },
+      {
+        "id": "promo-3",
+        "url": "promo/promo-3.webp",
+        "alt": "Promo Honda 3",
+        "active": true
+      },
+      {
+        "id": "promo-4",
+        "url": "promo/promo-4.webp",
+        "alt": "Promo Honda 4",
+        "active": true
+      },
+      {
+        "id": "promo-5",
+        "url": "promo/promo-5.webp",
+        "alt": "Promo Honda 5",
+        "active": true
+      }
+    ],
     "title": "Dealer Resmi Sepeda Motor Honda",
     "subtitle": "HENGKI HONDA JPA",
     "tagline": "Dapatkan Promo DP Ringan, Angsuran Terjangkau FIF & OTO, Diskon Spesial, dan Proses Cepat Mudah Terpercaya!",

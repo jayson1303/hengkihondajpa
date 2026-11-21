@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tulis Pertanyaan Konsumen | HENGKI HONDA JPA</title>
+  <meta name="description" content="Formulir khusus pengajuan pertanyaan dan konsultasi kredit, promo DP, dan pembelian sepeda motor Honda di Hengki Honda JPA (Maksimal 500 Karakter).">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/img/logo/logo-transparent.png">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="qna-page-body">
+
+  <!-- Sticky Header / Navbar -->
+  <header class="site-header" id="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html#beranda" class="navbar-brand">
+          <img src="assets/img/logo/logo-transparent.png" alt="Logo Honda HengkiHondaJPA" class="brand-logo" id="nav-logo" onerror="this.src='assets/img/logo/logo.png'">
+          <div class="brand-info">
+            <span class="brand-title">HengkiHondaJPA</span>
+            <span class="brand-sub">Dealer Resmi Honda</span>
+          </div>
+        </a>
+
+        <!-- Desktop Nav -->
+        <ul class="nav-menu">
+          <li><a href="index.html#beranda" class="nav-link">Beranda</a></li>
+          <li><a href="index.html#produk" class="nav-link">Produk</a></li>
+          <li><a href="index.html#tentang-kami" class="nav-link">Tentang Kami</a></li>
+          <li><a href="index.html#testimoni" class="nav-link">Ulasan</a></li>
+          <li><a href="index.html#tanya-jawab" class="nav-link active">Tanya Jawab</a></li>
+          <li><a href="index.html#kontak" class="nav-link">Kontak</a></li>
+          <li>
+            <a href="https://wa.me/6281313133505" target="_blank" rel="noopener noreferrer" class="nav-cta-btn" id="nav-wa-cta">
+              <i class="fa-brands fa-whatsapp"></i> Chat Sales
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Main Content -->
+  <main class="qna-page-main">
+    <div class="container">
+      
+      <!-- Breadcrumb & Back -->
+      <div class="qna-breadcrumb-nav">
+        <a href="index.html#tanya-jawab" class="btn-qna-back">
+          <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
+        </a>
+        <div class="qna-breadcrumbs">
+          <a href="index.html">Beranda</a>
+          <span>/</span>
+          <a href="index.html#tanya-jawab">Tanya Jawab</a>
+          <span>/</span>
+          <span class="current">Tulis Pertanyaan</span>
+        </div>
+      </div>
+
+      <!-- Centered Form Container -->
+      <div class="qna-form-wrapper">
+
+        <!-- CARD 1: FORMULIR PENGAJUAN PERTANYAAN -->
+        <div class="qna-page-card" id="qna-form-card">
+          <div class="qna-page-header">
+            <div class="qna-icon-circle">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </div>
+            <div>
+              <span class="qna-page-tag"><i class="fa-solid fa-comments"></i> Konsultasi Konsumen</span>
+              <h1 class="qna-page-title">Tulis Pertanyaan Anda</h1>
+              <p class="qna-page-subtitle">
+                Ajukan pertanyaan seputar simulasi kredit FIF / OTO, promo DP, ketersediaan unit motor Honda, atau syarat berkas. Tim sales Hengki Honda JPA siap merespon pertanyaan Anda!
+              </p>
+            </div>
+          </div>
+
+          <!-- Highlight Petunjuk -->
+          <div class="qna-page-notice">
+            <i class="fa-solid fa-circle-info notice-icon"></i>
+            <div>
+              <strong>Ketentuan Penulisan:</strong>
+              Khusus mengetik teks pertanyaan, dibatasi <strong>maksimal 500 karakter</strong> agar pertanyaan Anda padat, jelas, dan dapat segera dijawab secara akurat oleh tim sales kami.
+            </div>
+          </div>
+
+          <!-- Alert Box -->
+          <div id="qna-alert-box" class="qna-alert-msg" style="display: none;"></div>
+
+          <!-- Form Pengajuan -->
+          <form id="form-qna-page" novalidate>
+            <!-- Honeypot anti-bot -->
+            <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;" aria-hidden="true">
+              <input type="text" name="hp_check_field" id="qna-honeypot" tabindex="-1" autocomplete="off">
+            </div>
+
+            <!-- Field 1: Nama Lengkap -->
+            <div class="form-group mb-20">
+              <label for="qna-nama" class="form-label-custom">
+                Nama Lengkap / Panggilan <span class="text-danger">*</span>
+              </label>
+              <div class="input-icon-group">
+                <i class="fa-solid fa-user input-icon"></i>
+                <input type="text" id="qna-nama" class="form-control-custom" placeholder="Contoh: Bpk. Budi Santoso / Ibu Siti" maxlength="50" required>
+              </div>
+              <small class="form-hint-custom">Maksimal 50 karakter (nama yang akan tampil di halaman diskusi).</small>
+            </div>
+
+            <!-- Field 2: Kontak & Topik -->
+            <div class="form-grid-2 mb-20">
+              <div class="form-group">
+                <label for="qna-kontak" class="form-label-custom">
+                  Nomor WhatsApp / HP <span class="text-muted">(Opsional)</span>
+                </label>
+                <div class="input-icon-group">
+                  <i class="fa-brands fa-whatsapp input-icon" style="color: #25D366;"></i>
+                  <input type="tel" id="qna-kontak" class="form-control-custom" placeholder="Contoh: 081234567890" maxlength="20">
+                </div>
+                <small class="form-hint-custom">Jika diisi, sales dapat langsung mengirim rincian via WA.</small>
+              </div>
+
+              <div class="form-group">
+                <label for="qna-topik" class="form-label-custom">
+                  Topik Pertanyaan <span class="text-danger">*</span>
+                </label>
+                <div class="input-icon-group">
+                  <i class="fa-solid fa-tag input-icon"></i>
+                  <select id="qna-topik" class="form-control-custom" required>
+                    <option value="Simulasi Kredit FIF & OTO">Simulasi Kredit (FIF / OTO)</option>
+                    <option value="Promo DP & Potongan Angsuran">Promo DP &amp; Potongan Tenor</option>
+                    <option value="Ketersediaan Unit & Warna">Ketersediaan Unit &amp; Warna</option>
+                    <option value="Persyaratan Berkas & KTP Luar Kota">Syarat Berkas &amp; KTP Luar Kota</option>
+                    <option value="Layanan Servis & STNK/BPKB">Layanan Servis, STNK &amp; BPKB</option>
+                    <option value="Pertanyaan Umum">Pertanyaan Umum Lainnya</option>
+                  </select>
+                </div>
+                <small class="form-hint-custom">Pilih topik yang paling sesuai dengan kebutuhan Anda.</small>
+              </div>
+            </div>
+
+            <!-- Field 3: KHUSUS MENGETIK PERTANYAAN (MAKSIMAL 500 KARAKTER) -->
+            <div class="form-group mb-20">
+              <div class="qna-textarea-header">
+                <label for="qna-pertanyaan" class="form-label-custom mb-0">
+                  Isi Pertanyaan Anda <span class="text-danger">*</span>
+                </label>
+                <span class="qna-badge-limit">
+                  <i class="fa-solid fa-keyboard"></i> Maksimal 500 Karakter
+                </span>
+              </div>
+
+              <textarea 
+                id="qna-pertanyaan" 
+                class="form-control-custom qna-textarea-custom" 
+                rows="6" 
+                maxlength="500" 
+                required 
+                placeholder="Tuliskan pertanyaan Anda secara jelas di sini (maksimal 500 karakter)...&#10;&#10;Contoh: Halo sales Hengki Honda JPA, saya tertarik dengan Honda BeAT Deluxe 2026. Apakah saat ini ada promo DP minim 1 jutaan dan potongan tenor via leasing FIF? Apakah proses survey bisa dibantu untuk domisili Cisolok Sukabumi? Terima kasih."></textarea>
+
+              <!-- Progress Bar Indikator Karakter -->
+              <div class="qna-char-progress-wrapper" title="Indikator kapasitas karakter">
+                <div class="qna-char-progress-bar" id="qna-char-bar" style="width: 0%;"></div>
+              </div>
+
+              <!-- Status Counter Bar -->
+              <div class="qna-char-status-row">
+                <span id="qna-char-hint" class="char-hint-text">
+                  <i class="fa-regular fa-clock"></i> Sisa <strong id="qna-char-remaining">500</strong> karakter
+                </span>
+                <span class="char-count-badge">
+                  <span id="qna-char-count">0</span> / 500 Karakter
+                </span>
+              </div>
+
+              <!-- Peringatan Batas Maksimal 500 Karakter -->
+              <div id="qna-char-warning" class="qna-limit-warning" style="display: none;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Batas maksimal 500 karakter telah tercapai. Pertanyaan Anda sudah lengkap dan siap dikirim!
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="qna-form-actions">
+              <button type="submit" class="btn-primary qna-btn-submit" id="btn-submit-qna">
+                <i class="fa-solid fa-paper-plane"></i> Kirim Pertanyaan Sekarang
+              </button>
+            </div>
+          </form>
+
+          <!-- Alternative Quick WhatsApp -->
+          <div class="qna-wa-alt-box">
+            <div class="wa-alt-icon"><i class="fa-brands fa-whatsapp"></i></div>
+            <div class="wa-alt-content">
+              <h4>Butuh Respon Instan Saat Ini Juga?</h4>
+              <p>Konsumen dapat langsung menghubungi tim sales via chat WhatsApp resmi untuk konsultasi hitungan kredit dan promo terbaru secara real-time.</p>
+            </div>
+            <a href="https://wa.me/6281313133505" target="_blank" rel="noopener noreferrer" class="btn-wa-direct">
+              <i class="fa-brands fa-whatsapp"></i> Chat Sales Sekarang
+            </a>
+          </div>
+        </div>
+
+        <!-- CARD 2: LAYAR KONFIRMASI SUKSES (Tampil setelah berhasil kirim) -->
+        <div class="qna-page-card qna-success-card" id="qna-success-card" style="display: none;">
+          <div class="success-icon-animated">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <span class="qna-success-tag"><i class="fa-solid fa-shield-check"></i> Pertanyaan Diterima</span>
+          <h2 class="qna-success-title">Pertanyaan Anda Berhasil Terkirim!</h2>
+          <p class="qna-success-desc">
+            Terima kasih telah bertanya. Pertanyaan Anda telah masuk ke sistem kami dan akan segera ditinjau serta dijawab oleh tim sales resmi <strong>Hengki Honda JPA</strong>.
+          </p>
+
+          <!-- Preview Pertanyaan yang Dikirim -->
+          <div class="qna-preview-box">
+            <div class="preview-item">
+              <span class="preview-label">Nama Pengirim:</span>
+              <span class="preview-value" id="success-preview-nama">-</span>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">Topik Pertanyaan:</span>
+              <span class="preview-badge" id="success-preview-topik">Umum</span>
+            </div>
+            <div class="preview-item-full">
+              <span class="preview-label">Isi Pertanyaan (Maks. 500 Karakter):</span>
+              <div class="preview-content-text" id="success-preview-text">-</div>
+            </div>
+            <div class="preview-status-banner">
+              <i class="fa-solid fa-hourglass-half"></i> Status: <strong>Menunggu Peninjauan &amp; Jawaban Sales di Admin</strong>
+            </div>
+          </div>
+
+          <!-- Success Navigation Buttons -->
+          <div class="success-buttons-group">
+            <a href="index.html#tanya-jawab" class="btn-primary qna-btn-view-all">
+              <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda (Tanya Jawab)
+            </a>
+            <button type="button" class="btn-outline-custom" id="btn-ask-another">
+              <i class="fa-solid fa-plus"></i> Ajukan Pertanyaan Lain
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <h3>HengkiHondaJPA</h3>
+          <p>Dealer resmi sepeda motor Honda di Palabuhanratu, Jampang, Sukabumi. Solusi terbaik pembelian motor Honda baru secara Cash maupun Kredit (FIF &amp; OTO) dengan proses mudah, cepat, dan terpercaya.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Navigasi</h4>
+          <ul class="footer-links">
+            <li><a href="index.html#beranda">Beranda</a></li>
+            <li><a href="index.html#produk">Katalog Produk</a></li>
+            <li><a href="index.html#tentang-kami">Tentang Kami</a></li>
+            <li><a href="index.html#testimoni">Ulasan Konsumen</a></li>
+            <li><a href="index.html#pelayanan">Pelayanan Kami</a></li>
+            <li><a href="index.html#tanya-jawab">Tanya Jawab Konsumen</a></li>
+            <li><a href="index.html#kontak">Kontak &amp; Lokasi</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Informasi</h4>
+          <ul class="footer-links">
+            <li><a href="https://wa.me/6281313133505" target="_blank"><i class="fa-brands fa-whatsapp"></i> 081313133505</a></li>
+            <li><a href="admin/login.html" style="color: #64748B;"><i class="fa-solid fa-lock" style="font-size: 0.75rem;"></i> Login Admin</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 HengkiHondaJPA. All rights reserved.</p>
+        <p>Authorized Dealer of Astra Honda Motor | Rekanan Resmi FIFASTRA &amp; OTO Multiartha.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script Module -->
+  <script type="module" src="js/tanya-jawab.js"></script>
+</body>
+</html>

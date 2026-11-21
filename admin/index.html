@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Admin | HengkiHondaJPA</title>
+  <title>Dashboard Admin | Hengki Honda JPA</title>
   
   <link rel="icon" type="image/png" href="../assets/img/logo/logo-transparent.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -20,8 +20,8 @@
       <div class="sidebar-header">
         <img src="../assets/img/logo/logo-transparent.png" alt="Logo" class="sidebar-logo" onerror="this.src='../assets/img/logo/logo.png'">
         <div>
-          <div class="sidebar-brand-name">HengkiHondaJPA</div>
-          <div class="sidebar-brand-sub">Admin Panel</div>
+          <div class="sidebar-brand-name">Hengki Honda JPA</div>
+          <div class="sidebar-brand-sub">Dealer Resmi Motor Honda</div>
         </div>
       </div>
 
@@ -37,8 +37,19 @@
           </a>
         </li>
         <li>
+          <a class="sidebar-link" data-tab="tab-promo">
+            <i class="fa-solid fa-rectangle-ad"></i> <span>Promo 5 Banner</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-link" data-tab="tab-qna">
+            <i class="fa-solid fa-comments"></i> <span>Tanya Jawab</span>
+            <span class="sidebar-badge" id="sidebar-badge-qna" style="display:none;">0</span>
+          </a>
+        </li>
+        <li>
           <a class="sidebar-link" data-tab="tab-hero">
-            <i class="fa-solid fa-image"></i> <span>Hero & Promo Banner</span>
+            <i class="fa-solid fa-image"></i> <span>Hero Section</span>
           </a>
         </li>
         <li>
@@ -48,7 +59,7 @@
         </li>
         <li>
           <a class="sidebar-link" data-tab="tab-testimonials">
-            <i class="fa-solid fa-comments"></i> <span>Ulasan Konsumen</span>
+            <i class="fa-solid fa-star"></i> <span>Ulasan Konsumen</span>
           </a>
         </li>
         <li>
@@ -119,11 +130,21 @@
 
             <div class="metric-card">
               <div class="metric-icon-box bg-blue-light">
-                <i class="fa-solid fa-comments"></i>
+                <i class="fa-solid fa-star"></i>
               </div>
               <div class="metric-info">
                 <h3 id="metric-testi-count">0</h3>
                 <p>Testimoni Konsumen</p>
+              </div>
+            </div>
+
+            <div class="metric-card" onclick="switchTab('tab-qna')" style="cursor: pointer;" title="Klik untuk membuka kelola tanya jawab">
+              <div class="metric-icon-box" style="background: rgba(220, 38, 38, 0.12); color: var(--admin-red);">
+                <i class="fa-solid fa-comments"></i>
+              </div>
+              <div class="metric-info">
+                <h3 id="metric-qna-count">0</h3>
+                <p>Tanya Jawab Konsumen</p>
               </div>
             </div>
 
@@ -160,11 +181,14 @@
               <button type="button" class="btn-admin-action btn-success-action" onclick="switchTab('tab-products'); document.getElementById('btn-open-import').click();">
                 <i class="fa-solid fa-file-excel"></i> Import Pricelist (FIF &amp; OTO)
               </button>
-              <button type="button" class="btn-admin-action btn-outline-action" onclick="switchTab('tab-hero');">
-                <i class="fa-solid fa-image"></i> Ganti Banner Promo Hero
+              <button type="button" class="btn-admin-action btn-outline-action" onclick="switchTab('tab-promo');">
+                <i class="fa-solid fa-rectangle-ad"></i> Kelola 5 Banner Promo
+              </button>
+              <button type="button" class="btn-admin-action btn-outline-action" onclick="switchTab('tab-qna');">
+                <i class="fa-solid fa-comments"></i> Tanya Jawab Konsumen
               </button>
               <button type="button" class="btn-admin-action btn-outline-action" onclick="switchTab('tab-template');">
-                <i class="fa-brands fa-whatsapp"></i> Edit Format Pesan Order WhatsApp
+                <i class="fa-brands fa-whatsapp"></i> Edit Template Order WhatsApp
               </button>
             </div>
           </div>
@@ -175,7 +199,7 @@
               <h3 class="admin-card-title"><i class="fa-solid fa-circle-info"></i> Petunjuk Pengelolaan Data Dealer</h3>
             </div>
             <div style="font-size: 0.9rem; color: #475569; line-height: 1.7;">
-              <p>Selamat datang di Dashboard Admin <strong>HengkiHondaJPA</strong>. Semua data yang Anda ubah di sini akan langsung terhubung ke database <strong>Google Firebase (Firestore & Storage)</strong> dan otomatis diperbarui di landing page dealer tanpa perlu edit kode HTML.</p>
+              <p>Selamat datang di Dashboard Admin <strong>Hengki Honda JPA</strong>. Semua data yang Anda ubah di sini akan langsung terhubung ke database <strong>Google Firebase (Firestore & Storage)</strong> dan otomatis diperbarui di landing page dealer tanpa perlu edit kode HTML.</p>
               <ul style="margin: 12px 0 0 20px;">
                 <li><strong>Kelola Motor & Kredit:</strong> Tambah varian warna motor, upload foto motor, atur harga OTR cash, dan atur tabel simulasi cicilan FIF &amp; OTO.</li>
                 <li><strong>Fitur Import:</strong> Anda dapat mengimpor file Excel <code>PL Fif Updated.xlsx</code> dan <code>PL Oto Updated.xlsx</code> atau menginisialisasi seluruh motor sekaligus dengan 1 klik!</li>
@@ -237,6 +261,82 @@
                 </thead>
                 <tbody id="tbody-products">
                   <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             TAB: KELOLA 5 BANNER PROMO HERO
+             ================================================================ -->
+        <div class="tab-pane" id="tab-promo">
+          <div class="admin-card">
+            <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <h3 class="admin-card-title"><i class="fa-solid fa-rectangle-ad"></i> Kelola 5 Slot Banner Promo Hero</h3>
+                <p style="font-size: 0.85rem; color: #64748B; margin-top: 4px;">
+                  Setiap foto promo yang diunggah akan otomatis di-crop presisi (rasio ~3:4), di-resize ke 900×1260 px, dan dikompresi ke WebP tajam tanpa perlu edit manual.
+                </p>
+              </div>
+              <button type="button" class="btn-admin-action btn-primary-action" id="btn-save-promo-slots">
+                <i class="fa-solid fa-floppy-disk"></i> Simpan Semua Banner Promo
+              </button>
+            </div>
+
+            <div class="admin-alert-banner" style="background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; padding: 12px 16px; border-radius: 8px; margin-top: 15px; font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
+              <i class="fa-solid fa-circle-info" style="font-size: 1.1rem; color: #2563EB;"></i>
+              <span><strong>Informasi:</strong> Format WebP otomatis membuat website super cepat dimuat di HP. Gunakan tombol panah atas/bawah pada tiap slot untuk mengatur urutan kartu promo melayang di beranda.</span>
+            </div>
+
+            <div class="admin-promo-grid" id="promo-slots-container">
+              <!-- Rendered via js/admin-promo.js -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             TAB: KELOLA TANYA JAWAB (QnA) KONSUMEN
+             ================================================================ -->
+        <div class="tab-pane" id="tab-qna">
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <h3 class="admin-card-title"><i class="fa-solid fa-comments"></i> Kelola Pertanyaan & Tanggapan Konsumen</h3>
+              <p style="font-size: 0.85rem; color: #64748B; margin-top: 4px;">
+                Tinjau pertanyaan calon konsumen, berikan jawaban sales resmi, setujui/sembunyikan untuk tampil di beranda, atau hapus spam.
+              </p>
+            </div>
+
+            <div class="qna-filter-bar">
+              <button type="button" class="btn-qna-filter active" data-filter="all">
+                <i class="fa-solid fa-list"></i> Semua Pertanyaan <span class="filter-count" id="qna-count-all">0</span>
+              </button>
+              <button type="button" class="btn-qna-filter" data-filter="pending">
+                <i class="fa-solid fa-shield-halved"></i> Perlu Ditinjau (Pending) <span class="filter-count" id="qna-count-pending">0</span>
+              </button>
+              <button type="button" class="btn-qna-filter" data-filter="waiting">
+                <i class="fa-solid fa-clock"></i> Menunggu Jawaban <span class="filter-count" id="qna-count-waiting">0</span>
+              </button>
+              <button type="button" class="btn-qna-filter" data-filter="answered">
+                <i class="fa-solid fa-circle-check"></i> Sudah Dijawab <span class="filter-count" id="qna-count-answered">0</span>
+              </button>
+              <button type="button" class="btn-admin-action btn-outline-action" id="btn-refresh-qna" style="margin-left: auto;">
+                <i class="fa-solid fa-rotate"></i> Segarkan Data
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width: 50px; text-align: center;">No</th>
+                    <th style="width: 240px;">Konsumen &amp; Topik</th>
+                    <th>Pertanyaan &amp; Kolom Jawaban Sales</th>
+                    <th style="width: 140px; text-align: center;">Aksi Moderasi</th>
+                  </tr>
+                </thead>
+                <tbody id="qna-table-body">
+                  <!-- Rendered via js/admin-qna.js -->
                 </tbody>
               </table>
             </div>
@@ -847,6 +947,8 @@
     import "./js/admin-auth.js";
     import { isFirebaseConfigured, firebaseConfig, saveFirebaseConfig } from "../js/firebase-config.js";
     import { initAdminProducts } from "./js/admin-products.js";
+    import { initAdminPromo } from "./js/admin-promo.js";
+    import { initAdminQna } from "./js/admin-qna.js";
     import { initAdminHero } from "./js/admin-hero.js";
     import { initAdminAbout } from "./js/admin-about.js";
     import { initAdminTestimonials } from "./js/admin-testimonials.js";
@@ -966,6 +1068,8 @@
 
       // Initialize all admin subsystems safely
       try { await initAdminProducts(); } catch (e) { console.warn("Admin Products init:", e); }
+      try { await initAdminPromo(); } catch (e) { console.warn("Admin Promo init:", e); }
+      try { await initAdminQna(); } catch (e) { console.warn("Admin QnA init:", e); }
       try { await initAdminHero(); } catch (e) { console.warn("Admin Hero init:", e); }
       try { await initAdminAbout(); } catch (e) { console.warn("Admin About init:", e); }
       try { await initAdminTestimonials(); } catch (e) { console.warn("Admin Testimonials init:", e); }

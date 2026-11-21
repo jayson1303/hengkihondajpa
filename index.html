@@ -53,6 +53,7 @@
           <li><a href="#tentang-kami" class="nav-link">Tentang Kami</a></li>
           <li><a href="#testimoni" class="nav-link">Ulasan</a></li>
           <li><a href="#pelayanan" class="nav-link">Pelayanan</a></li>
+          <li><a href="#tanya-jawab" class="nav-link">Tanya Jawab</a></li>
           <li><a href="#kontak" class="nav-link">Kontak</a></li>
           <li>
             <a href="https://wa.me/6281313133505" target="_blank" rel="noopener noreferrer" class="nav-cta-btn" id="nav-wa-cta">
@@ -78,6 +79,7 @@
         <li><a href="#tentang-kami" class="mobile-nav-link">Tentang Kami</a></li>
         <li><a href="#testimoni" class="mobile-nav-link">Ulasan Konsumen</a></li>
         <li><a href="#pelayanan" class="mobile-nav-link">Pelayanan Kami</a></li>
+        <li><a href="#tanya-jawab" class="mobile-nav-link">Tanya Jawab</a></li>
         <li><a href="#kontak" class="mobile-nav-link">Kontak & Lokasi</a></li>
         <li>
           <a href="https://wa.me/6281313133505" target="_blank" rel="noopener noreferrer" class="btn-primary" style="width: 100%; margin-top: 8px;" id="mobile-wa-cta">
@@ -131,39 +133,33 @@
         </div>
       </div>
 
-      <!-- Hero Overlay Promo Banner (3 Kartu Bergantian) -->
+      <!-- Hero Overlay Promo Banner (5 Kartu Bergantian - Flying 3D Cards) -->
       <div class="hero-promo-wrapper" id="hero-promo-wrapper" aria-label="Promo Honda Spesial">
         <div class="hero-promo-stack" id="hero-promo-stack">
-          <!-- Card 1 (Depan / Muncul) -->
-          <div class="hero-promo-card promo-pos-front" data-index="0" title="Klik untuk konsultasi promo WhatsApp">
+          <!-- Card 1 (Posisi Depan) -->
+          <div class="hero-promo-card promo-pos-0" data-index="0" title="Klik untuk konsultasi promo WhatsApp">
             <span class="hero-promo-tag"><i class="fa-solid fa-bolt"></i> PROMO SPESIAL</span>
-            <img src="promo/promo-1.jpg" onerror="this.onerror=null;this.src='assets/img/hero/promo-banner.jpg';" alt="Promo Honda 1" class="hero-promo-img" id="hero-promo-img">
-            <script>
-              (function() {
-                try {
-                  var cached = JSON.parse(localStorage.getItem("asm_hero_cache") || "null");
-                  if (cached) {
-                    if (cached.promoActive === false) {
-                      var wrap = document.getElementById("hero-promo-wrapper");
-                      if (wrap) wrap.style.display = "none";
-                    } else if (cached.promoImageUrl) {
-                      var img = document.getElementById("hero-promo-img");
-                      if (img) img.src = cached.promoImageUrl;
-                    }
-                  }
-                } catch (e) {}
-              })();
-            </script>
+            <img src="promo/promo-1.webp" onerror="this.onerror=null;this.src='promo/promo-1.jpg';" alt="Promo Honda 1" class="hero-promo-img" id="hero-promo-img-0" loading="lazy">
           </div>
-          <!-- Card 2 (Belakang Kanan) -->
-          <div class="hero-promo-card promo-pos-next" data-index="1" title="Klik untuk menampilkan ke depan">
+          <!-- Card 2 -->
+          <div class="hero-promo-card promo-pos-1" data-index="1" title="Klik untuk menampilkan ke depan">
             <span class="hero-promo-tag"><i class="fa-solid fa-bolt"></i> PROMO SPESIAL</span>
-            <img src="promo/promo-2.jpg" onerror="this.onerror=null;this.src='promo/promo-1.jpg';" alt="Promo Honda 2" class="hero-promo-img">
+            <img src="promo/promo-2.webp" onerror="this.onerror=null;this.src='promo/promo-2.jpg';" alt="Promo Honda 2" class="hero-promo-img" id="hero-promo-img-1" loading="lazy">
           </div>
-          <!-- Card 3 (Belakang Kiri) -->
-          <div class="hero-promo-card promo-pos-prev" data-index="2" title="Klik untuk menampilkan ke depan">
+          <!-- Card 3 -->
+          <div class="hero-promo-card promo-pos-2" data-index="2" title="Klik untuk menampilkan ke depan">
             <span class="hero-promo-tag"><i class="fa-solid fa-bolt"></i> PROMO SPESIAL</span>
-            <img src="promo/promo-3.jpg" onerror="this.onerror=null;this.src='assets/img/hero/promo-banner.jpg';" alt="Promo Honda 3" class="hero-promo-img">
+            <img src="promo/promo-3.webp" onerror="this.onerror=null;this.src='promo/promo-3.jpg';" alt="Promo Honda 3" class="hero-promo-img" id="hero-promo-img-2" loading="lazy">
+          </div>
+          <!-- Card 4 -->
+          <div class="hero-promo-card promo-pos-3" data-index="3" title="Klik untuk menampilkan ke depan">
+            <span class="hero-promo-tag"><i class="fa-solid fa-bolt"></i> PROMO SPESIAL</span>
+            <img src="promo/promo-4.webp" onerror="this.onerror=null;this.src='promo/promo-4.jpg';" alt="Promo Honda 4" class="hero-promo-img" id="hero-promo-img-3" loading="lazy">
+          </div>
+          <!-- Card 5 -->
+          <div class="hero-promo-card promo-pos-4" data-index="4" title="Klik untuk menampilkan ke depan">
+            <span class="hero-promo-tag"><i class="fa-solid fa-bolt"></i> PROMO SPESIAL</span>
+            <img src="promo/promo-5.webp" onerror="this.onerror=null;this.src='promo/promo-5.jpg';" alt="Promo Honda 5" class="hero-promo-img" id="hero-promo-img-4" loading="lazy">
           </div>
         </div>
         <!-- Kontrol Navigasi & Dots -->
@@ -175,6 +171,8 @@
             <button type="button" class="promo-dot active" data-index="0" aria-label="Lihat Promo 1"></button>
             <button type="button" class="promo-dot" data-index="1" aria-label="Lihat Promo 2"></button>
             <button type="button" class="promo-dot" data-index="2" aria-label="Lihat Promo 3"></button>
+            <button type="button" class="promo-dot" data-index="3" aria-label="Lihat Promo 4"></button>
+            <button type="button" class="promo-dot" data-index="4" aria-label="Lihat Promo 5"></button>
           </div>
           <button type="button" class="promo-nav-btn promo-next-btn" id="promo-next-btn" aria-label="Promo Berikutnya" title="Promo Berikutnya">
             <i class="fa-solid fa-chevron-right"></i>
@@ -507,6 +505,90 @@
     </div>
   </section>
 
+  <!-- Section Tanya Jawab Konsumen -->
+  <section class="section qna-section" id="tanya-jawab">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag"><i class="fa-solid fa-comments"></i> Tanya Jawab Konsumen</span>
+        <h2 class="section-title">Konsultasi &amp; <span>Tanya Jawab</span></h2>
+        <p class="section-desc">Punya pertanyaan seputar simulasi kredit FIF &amp; OTO, promo DP murah, ketersediaan unit motor Honda, atau berkas pembelian? Konsultasikan di sini, tim sales Hengki Honda JPA siap merespon!</p>
+      </div>
+
+      <div class="qna-landing-layout">
+        <!-- 1. Action Banner Card (Ajakan Masuk ke Halaman Pertanyaan) -->
+        <div class="qna-landing-cta-card">
+          <div class="qna-landing-cta-content">
+            <span class="qna-landing-badge">
+              <i class="fa-solid fa-headset"></i> Layanan Konsultasi Online Cepat
+            </span>
+            <h3 class="qna-landing-cta-title">Ingin Bertanya Seputar Motor Honda Impian Anda?</h3>
+            <p class="qna-landing-cta-desc">
+              Tuliskan pertanyaan Anda di halaman khusus formulir pengajuan pertanyaan (maksimal 500 karakter). Pertanyaan Anda akan langsung kami teruskan ke admin sales Hengki Honda JPA untuk mendapatkan respon resmi.
+            </p>
+            <div class="qna-features-row">
+              <span class="qna-feature-chip"><i class="fa-solid fa-circle-check"></i> Bebas Biaya &amp; Tanpa Login</span>
+              <span class="qna-feature-chip"><i class="fa-solid fa-bolt"></i> Respon Cepat Sales Resmi</span>
+              <span class="qna-feature-chip"><i class="fa-solid fa-shield-halved"></i> Moderasi Anti-Spam</span>
+              <span class="qna-feature-chip"><i class="fa-solid fa-keyboard"></i> Maksimal 500 Karakter</span>
+            </div>
+          </div>
+
+          <div class="qna-landing-cta-action">
+            <a href="tanya-jawab.html" class="qna-btn-large">
+              <i class="fa-solid fa-pen-to-square"></i> Tulis Pertanyaan Baru
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <small class="qna-cta-subnote">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Masuk ke form khusus pengajuan
+            </small>
+          </div>
+        </div>
+
+        <!-- 2. Full-Width Showcase Diskusi & Tanggapan Sales -->
+        <div class="qna-showcase-card">
+          <div class="qna-showcase-header">
+            <div class="qna-showcase-title-group">
+              <h3><i class="fa-solid fa-clipboard-question"></i> Diskusi &amp; Tanggapan Resmi Sales</h3>
+              <p>Pertanyaan calon konsumen yang telah ditinjau dan dijawab langsung oleh tim sales dealer.</p>
+            </div>
+
+            <div class="qna-showcase-tools">
+              <!-- Live Search Filter -->
+              <div class="qna-search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="qna-search-input" placeholder="Cari pertanyaan (misal: BeAT, FIF, DP)...">
+              </div>
+
+              <!-- Filter Pills -->
+              <div class="qna-filter-pills" id="qna-public-filters">
+                <button type="button" class="qna-filter-pill active" data-qna-filter="all">Semua</button>
+                <button type="button" class="qna-filter-pill" data-qna-filter="answered">Sudah Dijawab</button>
+                <button type="button" class="qna-filter-pill" data-qna-filter="waiting">Menunggu</button>
+              </div>
+
+              <span class="qna-badge-count" id="qna-badge-count">0 Pertanyaan</span>
+            </div>
+          </div>
+
+          <!-- Items Container -->
+          <div class="qna-items-container" id="qna-items-container">
+            <div class="qna-loading-placeholder">
+              <i class="fa-solid fa-spinner fa-spin"></i> Memuat daftar tanya jawab...
+            </div>
+          </div>
+
+          <!-- Footer Link to Question Page -->
+          <div class="qna-showcase-footer">
+            <span>Belum menemukan jawaban yang Anda butuhkan?</span>
+            <a href="tanya-jawab.html" class="qna-footer-cta-link">
+              Tuliskan Pertanyaan Anda Sekarang (Maks. 500 Karakter) <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Contact & Location Section -->
   <section class="section contact-section" id="kontak">
     <div class="container">
@@ -592,6 +674,7 @@
             <li><a href="#tentang-kami">Tentang Kami</a></li>
             <li><a href="#testimoni">Ulasan Konsumen</a></li>
             <li><a href="#pelayanan">Pelayanan Kami</a></li>
+            <li><a href="#tanya-jawab">Tanya Jawab Konsumen</a></li>
             <li><a href="#kontak">Kontak &amp; Lokasi</a></li>
           </ul>
         </div>
