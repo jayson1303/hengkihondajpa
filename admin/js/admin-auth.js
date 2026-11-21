@@ -48,6 +48,8 @@ if (togglePwdBtn && pwdInput) {
 if (auth) {
   onAuthStateChanged(auth, (user) => {
     if (user) {
+      localStorage.setItem("admin_logged_in", "true");
+      sessionStorage.setItem("admin_session_auth", "active");
       if (isLoginPage) {
         window.location.href = "index.html";
       } else {
@@ -56,8 +58,11 @@ if (auth) {
       }
     } else {
       const localSess = sessionStorage.getItem("admin_session_auth");
-      if (!localSess && !isLoginPage) {
-        window.location.href = "login.html";
+      if (!localSess) {
+        localStorage.removeItem("admin_logged_in");
+        if (!isLoginPage) {
+          window.location.href = "login.html";
+        }
       }
     }
   });
@@ -66,8 +71,10 @@ if (auth) {
   if (!isLoginPage) {
     const localSess = sessionStorage.getItem("admin_session_auth");
     if (!localSess) {
+      localStorage.removeItem("admin_logged_in");
       window.location.href = "login.html";
     } else {
+      localStorage.setItem("admin_logged_in", "true");
       const emailDisplay = document.getElementById("admin-user-email");
       if (emailDisplay) emailDisplay.textContent = localStorage.getItem("admin_last_email") || "Admin (Mode Konfigurasi)";
     }
@@ -98,11 +105,14 @@ if (loginForm) {
       if (auth && isFirebaseConfigured) {
         // Authenticate with Firebase Auth
         await signInWithEmailAndPassword(auth, email, password);
+        localStorage.setItem("admin_logged_in", "true");
+        sessionStorage.setItem("admin_session_auth", "active");
       } else {
         // If Firebase API Key is not yet filled, allow setup session with credentials
         if (!password || password.length < 4) {
           throw new Error("Silakan masukkan password yang valid.");
         }
+        localStorage.setItem("admin_logged_in", "true");
         sessionStorage.setItem("admin_session_auth", "active");
       }
 
@@ -154,10 +164,13 @@ if (logoutBtn) {
     if (confirmed) {
       try {
         sessionStorage.removeItem("admin_session_auth");
+        localStorage.removeItem("admin_logged_in");
         if (auth) await signOut(auth);
         window.location.href = "login.html";
       } catch (err) {
         console.error("Logout error:", err);
+        sessionStorage.removeItem("admin_session_auth");
+        localStorage.removeItem("admin_logged_in");
         window.location.href = "login.html";
       }
     }

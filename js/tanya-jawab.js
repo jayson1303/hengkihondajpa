@@ -10,6 +10,12 @@ import {
   collection 
 } from "./firebase-config.js";
 
+import { 
+  trackPageView, 
+  initAutoClickTracking, 
+  initGoogleAnalytics 
+} from "./stats-tracker.js";
+
 function escapeHtml(str) {
   if (!str) return "";
   return String(str)
@@ -22,6 +28,13 @@ function escapeHtml(str) {
 
 document.addEventListener("DOMContentLoaded", () => {
   initQuestionPage();
+
+  // Async stats tracking (non-blocking)
+  setTimeout(() => {
+    trackPageView("tanya_jawab");
+    initAutoClickTracking();
+    initGoogleAnalytics();
+  }, 400);
 });
 
 function initQuestionPage() {

@@ -3,6 +3,8 @@
 // product-detail.js - Logic Modal Detail Produk + Simulasi Kredit Dual Leasing (FIF & OTO) + WhatsApp
 // ==========================================================================
 
+import { trackProductView } from "./stats-tracker.js";
+
 let currentProduct = null;
 let currentColor = null;
 let currentLeasing = "FIF"; // "FIF" or "OTO"
@@ -41,6 +43,10 @@ export function openProductModal(product, waTemplate = null, contact = null) {
   currentProduct = product;
   if (waTemplate) currentWaTemplate = waTemplate;
   if (contact) currentContact = contact;
+
+  if (product && product.namaMotor) {
+    trackProductView(product.namaMotor);
+  }
 
   const modal = document.getElementById("product-modal");
   const modalImg = document.getElementById("modal-main-img");

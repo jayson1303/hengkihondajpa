@@ -1,9 +1,26 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 1. READ PUBLIK: Siapa saja boleh membaca katalog motor, hero, promo, ulasan, kontak, dan QnA
-    match /{document=**} {
+    // 1. READ PUBLIK: Siapa saja boleh membaca katalog motor, hero, tentang kami, kontak/template, testimoni
+    match /products/{docId} {
       allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /hero/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /about/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /testimonials/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
     // 2. TANYA JAWAB (QnA):
@@ -11,6 +28,7 @@ service cloud.firestore {
     // - Validasi: nama (2-50 karakter), pertanyaan (3-500 karakter)
     // - Admin terotentikasi memiliki akses penuh update & delete
     match /qna/{qnaId} {
+      allow read: if true;
       allow create: if request.resource.data.nama is string
                     && request.resource.data.nama.size() >= 2
                     && request.resource.data.nama.size() <= 50
@@ -20,22 +38,15 @@ service cloud.firestore {
       allow update, delete: if request.auth != null;
     }
 
-    // 3. KOLEKSI LAINNYA (products, hero, about, settings, testimonials):
-    // - Hanya Admin yang terotentikasi yang boleh create, update, atau delete
-    match /products/{docId} {
-      allow write: if request.auth != null;
-    }
-    match /hero/{docId} {
-      allow write: if request.auth != null;
-    }
-    match /about/{docId} {
-      allow write: if request.auth != null;
-    }
-    match /settings/{docId} {
-      allow write: if request.auth != null;
-    }
-    match /testimonials/{docId} {
-      allow write: if request.auth != null;
+    // 3. STATISTIK PENGUNJUNG (Stats):
+    // - Hanya Admin yang login yang boleh MEMBACA (read) data statistik
+    // - Pengunjung publik hanya boleh CREATE / UPDATE dengan counter increment pada field yang diizinkan
+    // - Publik dilarang menghapus (delete) dokumen statistik
+    match /stats/{dateDoc} {
+      allow read: if request.auth != null;
+      allow create, update: if request.resource.data.keys().hasOnly(['date', 'totalViews', 'uniqueVisitors', 'pages', 'products', 'clicks', 'updatedAt'])
+                            && request.resource.data.date is string;
+      allow delete: if request.auth != null;
     }
   }
 }

@@ -23,6 +23,12 @@ import {
   showToast 
 } from "./product-detail.js";
 
+import { 
+  trackPageView, 
+  initAutoClickTracking, 
+  initGoogleAnalytics 
+} from "./stats-tracker.js";
+
 // Global App State
 let allProducts = [];
 let allTestimonials = [];
@@ -53,6 +59,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadProducts(),
     loadTestimonials()
   ]);
+
+  // Statistik Kunjungan & GA4 (Async non-blocking)
+  setTimeout(() => {
+    trackPageView("home");
+    initAutoClickTracking();
+    initGoogleAnalytics();
+  }, 400);
 });
 
 // ==========================================================================

@@ -18,7 +18,8 @@ import {
   query, 
   where, 
   orderBy, 
-  onSnapshot 
+  onSnapshot,
+  increment 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
   getStorage, 
@@ -110,6 +111,12 @@ export function resetFirebaseConfig() {
   }
 }
 
+// Google Analytics 4 (GA4) Measurement ID (Opsional)
+// Isi dengan Measurement ID Anda (contoh: "G-XXXXXXXXXX") untuk mengaktifkan GA4
+export const googleAnalyticsConfig = {
+  measurementId: "" // Masukkan Measurement ID GA4 di sini jika sudah memiliki akun GA4
+};
+
 export { 
   app, 
   db, 
@@ -129,7 +136,8 @@ export {
   query, 
   where, 
   orderBy, 
-  onSnapshot, 
+  onSnapshot,
+  increment, 
   ref, 
   uploadBytes, 
   getDownloadURL, 

@@ -11,6 +11,9 @@
 
   <!-- SheetJS for Browser-Side Excel Parsing -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Chart.js for Traffic & Visitor Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -29,6 +32,11 @@
         <li>
           <a class="sidebar-link active" data-tab="tab-dashboard">
             <i class="fa-solid fa-gauge-high"></i> <span>Ringkasan</span>
+          </a>
+        </li>
+        <li>
+          <a class="sidebar-link" data-tab="tab-stats">
+            <i class="fa-solid fa-chart-line"></i> <span>Statistik</span>
           </a>
         </li>
         <li>
@@ -181,6 +189,9 @@
               <button type="button" class="btn-admin-action btn-success-action" onclick="switchTab('tab-products'); document.getElementById('btn-open-import').click();">
                 <i class="fa-solid fa-file-excel"></i> Import Pricelist (FIF &amp; OTO)
               </button>
+              <button type="button" class="btn-admin-action btn-outline-action" onclick="switchTab('tab-stats');">
+                <i class="fa-solid fa-chart-line"></i> Lihat Statistik Pengunjung
+              </button>
               <button type="button" class="btn-admin-action btn-outline-action" onclick="switchTab('tab-promo');">
                 <i class="fa-solid fa-rectangle-ad"></i> Kelola 5 Banner Promo
               </button>
@@ -205,6 +216,143 @@
                 <li><strong>Fitur Import:</strong> Anda dapat mengimpor file Excel <code>PL Fif Updated.xlsx</code> dan <code>PL Oto Updated.xlsx</code> atau menginisialisasi seluruh motor sekaligus dengan 1 klik!</li>
                 <li><strong>Template WhatsApp:</strong> Sesuaikan format chat order yang masuk ke WhatsApp sales agar informasi motor, warna, OTR cash, leasing (FIF/OTO), DP, dan tenor langsung rapi terformat.</li>
               </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             TAB: STATISTIK PENGUNJUNG & INTERAKSI
+             ================================================================ -->
+        <div class="tab-pane" id="tab-stats">
+          <!-- Filter & Header Bar -->
+          <div class="stats-header-bar">
+            <div class="stats-header-info">
+              <h3 class="stats-title"><i class="fa-solid fa-chart-line"></i> Statistik Pengunjung &amp; Interaksi</h3>
+              <p class="stats-subtitle">Pantau jumlah kunjungan, pengunjung unik harian, interaksi WhatsApp, dan minat produk motor.</p>
+            </div>
+            <div class="stats-header-actions">
+              <div class="stats-filter-pills" role="group" aria-label="Rentang Tanggal">
+                <button type="button" class="btn-stats-filter" data-range="today">Hari Ini</button>
+                <button type="button" class="btn-stats-filter active" data-range="7d">7 Hari</button>
+                <button type="button" class="btn-stats-filter" data-range="30d">30 Hari</button>
+                <button type="button" class="btn-stats-filter" data-range="all">Semua</button>
+              </div>
+              <button type="button" class="btn-admin-action btn-outline-action" id="btn-refresh-stats" title="Segarkan Data Statistik">
+                <i class="fa-solid fa-rotate"></i> <span>Segarkan</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Metric Cards Grid -->
+          <div class="stats-metrics-grid">
+            <!-- Card 1: Hari Ini -->
+            <div class="stats-metric-card border-green">
+              <div class="stats-card-icon bg-green-soft">
+                <i class="fa-solid fa-users"></i>
+              </div>
+              <div class="stats-card-body">
+                <div class="stats-card-label">Hari Ini</div>
+                <div class="stats-card-main-val" id="stats-metric-today-views">0</div>
+                <div class="stats-card-sub-val" id="stats-metric-today-uniques">0 unik</div>
+              </div>
+            </div>
+
+            <!-- Card 2: 7 Hari Terakhir -->
+            <div class="stats-metric-card border-blue">
+              <div class="stats-card-icon bg-blue-soft">
+                <i class="fa-solid fa-calendar-week"></i>
+              </div>
+              <div class="stats-card-body">
+                <div class="stats-card-label">7 Hari Terakhir</div>
+                <div class="stats-card-main-val" id="stats-metric-7d-views">0</div>
+                <div class="stats-card-sub-val" id="stats-metric-7d-uniques">0 unik</div>
+              </div>
+            </div>
+
+            <!-- Card 3: 30 Hari Terakhir -->
+            <div class="stats-metric-card border-purple">
+              <div class="stats-card-icon bg-purple-soft">
+                <i class="fa-solid fa-calendar-days"></i>
+              </div>
+              <div class="stats-card-body">
+                <div class="stats-card-label">30 Hari Terakhir</div>
+                <div class="stats-card-main-val" id="stats-metric-30d-views">0</div>
+                <div class="stats-card-sub-val" id="stats-metric-30d-uniques">0 unik</div>
+              </div>
+            </div>
+
+            <!-- Card 4: Total Keseluruhan -->
+            <div class="stats-metric-card border-red">
+              <div class="stats-card-icon bg-red-soft">
+                <i class="fa-solid fa-chart-pie"></i>
+              </div>
+              <div class="stats-card-body">
+                <div class="stats-card-label">Total Keseluruhan</div>
+                <div class="stats-card-main-val" id="stats-metric-total-views">0</div>
+                <div class="stats-card-sub-val" id="stats-metric-total-uniques">0 unik</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Line Chart Card -->
+          <div class="admin-card stats-chart-card">
+            <div class="admin-card-header">
+              <div class="stats-chart-title-wrap">
+                <h3 class="admin-card-title"><i class="fa-solid fa-chart-area"></i> Grafik Tren Pengunjung Per Hari</h3>
+                <span class="stats-ga-tag inactive" id="stats-ga-badge"><i class="fa-solid fa-circle-info"></i> GA4 Siap</span>
+              </div>
+            </div>
+            <div class="stats-chart-container">
+              <canvas id="stats-traffic-chart"></canvas>
+              <div id="stats-chart-empty" class="stats-chart-empty-overlay" style="display: none;">
+                <i class="fa-solid fa-chart-line" style="font-size: 2.2rem; color: #CBD5E1; margin-bottom: 8px;"></i>
+                <p>Belum ada rekaman statistik kunjungan pada rentang tanggal ini.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Grid: Top 10 Products & Interaction Breakdown -->
+          <div class="stats-bottom-grid">
+            <!-- Left: Top 10 Products -->
+            <div class="admin-card stats-sub-card">
+              <div class="admin-card-header">
+                <h3 class="admin-card-title"><i class="fa-solid fa-fire"></i> 10 Sepeda Motor Paling Banyak Dilihat</h3>
+              </div>
+              <div id="stats-top-products-list">
+                <div class="stats-empty-box">
+                  <i class="fa-solid fa-motorcycle" style="font-size: 1.8rem; color: #CBD5E1; margin-bottom: 8px;"></i>
+                  <p>Memuat data produk...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Pages & Clicks Breakdown -->
+            <div class="admin-card stats-sub-card">
+              <div class="admin-card-header">
+                <h3 class="admin-card-title"><i class="fa-solid fa-hand-pointer"></i> Interaksi Tombol &amp; Halaman</h3>
+              </div>
+              
+              <div class="stats-section-block">
+                <div class="stats-block-title"><i class="fa-brands fa-whatsapp" style="color: #10B981;"></i> Klik Tombol Kontak</div>
+                <div id="stats-clicks-list">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+              <div class="stats-section-block" style="margin-top: 18px;">
+                <div class="stats-block-title"><i class="fa-solid fa-layer-group" style="color: #64748B;"></i> Kunjungan Halaman</div>
+                <div id="stats-pages-list">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- Info Box regarding lightweight counter & privacy -->
+              <div class="stats-privacy-note">
+                <i class="fa-solid fa-shield-halved"></i>
+                <div>
+                  <strong>Privasi &amp; Efisiensi Kuota:</strong> Data disimpan ringkas per hari (1 dokumen per tanggal) dengan counter increment Firestore. Tanpa melacak data pribadi atau IP address, sangat cepat dan hemat kuota database.
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -964,6 +1112,7 @@
     import { initAdminAbout } from "./js/admin-about.js";
     import { initAdminTestimonials } from "./js/admin-testimonials.js";
     import { initAdminContact } from "./js/admin-contact.js";
+    import { initAdminStats } from "./js/admin-stats.js";
 
     // Tab Switching Logic
     window.switchTab = function(tabId) {
@@ -981,6 +1130,11 @@
       if (pageTitle && activeLink) {
         const span = activeLink.querySelector("span");
         if (span) pageTitle.textContent = span.textContent;
+      }
+
+      // Trigger stats chart update/resize if stats tab is opened
+      if (tabId === "tab-stats" && typeof window.onStatsTabOpen === "function") {
+        window.onStatsTabOpen();
       }
 
       // Close mobile sidebar if open
@@ -1085,6 +1239,7 @@
       try { await initAdminAbout(); } catch (e) { console.warn("Admin About init:", e); }
       try { await initAdminTestimonials(); } catch (e) { console.warn("Admin Testimonials init:", e); }
       try { await initAdminContact(); } catch (e) { console.warn("Admin Contact init:", e); }
+      try { await initAdminStats(); } catch (e) { console.warn("Admin Stats init:", e); }
     }
 
     if (document.readyState === "loading") {
